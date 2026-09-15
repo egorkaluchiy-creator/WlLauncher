@@ -14,6 +14,10 @@ plugins {
     alias(libs.plugins.javafx) apply false
 }
 
+repositories {
+    mavenCentral()
+}
+
 subprojects {
     repositories {
         mavenCentral()
@@ -44,6 +48,9 @@ subprojects {
     }
 
     plugins.withId("java-base") {
+        apply(plugin = "jacoco")
+        apply(plugin = "checkstyle")
+
         val targetJavaCompatibility: String by ext
         val sourceJavaCompatibility: String by ext
 
@@ -56,9 +63,23 @@ subprojects {
             }
         }
 
+        extensions.configure<CheckstyleExtension>("checkstyle") {
+            toolVersion = "10.14.2"
+            isIgnoreFailures = true
+            maxWarnings = 5000
+        }
+
         tasks.withType<JavaCompile>().configureEach {
             options.encoding = "UTF-8"
             options.release = targetJavaCompatibility.toInt()
+        }
+
+        tasks.withType<JacocoReport>().configureEach {
+            reports {
+                xml.required.set(true)
+                html.required.set(true)
+                csv.required.set(false)
+            }
         }
     }
 
@@ -79,3 +100,11 @@ subprojects {
         }
     }
 }
+
+val jacocoTestReport by tasks.registering {
+    group = "verification"
+    description = "Generates code coverage reports for all subprojects"
+    dependsOn(subprojects.map { it.tasks.matching { t -> t.name == "jacocoTestReport" } })
+}
+
+

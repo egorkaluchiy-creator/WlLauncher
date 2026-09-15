@@ -19,6 +19,66 @@ class DiscordRPCTest {
     }
 
     @Test
+    void testConnectionRetryWithBackoff() {
+        long delay = DiscordRPC.INITIAL_RETRY_DELAY_MS;
+        for (int i = 0; i < 10; i++) {
+            long prevDelay = delay;
+            delay = DiscordRPC.calculateNextBackoff(delay);
+            assertTrue(delay >= prevDelay || delay == DiscordRPC.MAX_RETRY_DELAY_MS,
+                    "Delay should monotonically increase until max cap");
+            assertTrue(delay >= DiscordRPC.INITIAL_RETRY_DELAY_MS, "Delay should never be below initial");
+            assertTrue(delay <= DiscordRPC.MAX_RETRY_DELAY_MS, "Delay should never exceed max");
+        }
+        assertEquals(DiscordRPC.MAX_RETRY_DELAY_MS, delay, "After multiple retries, delay should reach MAX_RETRY_DELAY_MS");
+    }
+
+    @Test
+    void testGracefulFallbackWhenDiscordUnavailable() {
+        DiscordRPC rpc = DiscordRPC.getInstance();
+
+        // Ensure init does not throw when Discord is unavailable
+        assertDoesNotThrow(rpc::init);
+        assertTrue(rpc.isRunning(), "RPC should be marked as running");
+
+        // Toggling state while disconnected should gracefully fallback without exception
+        assertDoesNotThrow(rpc::setInLauncher);
+        assertDoesNotThrow(() -> rpc.setInGame("1.20.4", "Steve"));
+        assertDoesNotThrow(rpc::setInLauncher);
+
+        // When Discord is not running locally, isConnected should remain false
+        assertFalse(rpc.isConnected(), "Should be false when no IPC pipe is active");
+    }
+
+    @Test
+    void testPipeConnectionResilience() {
+        // Test pipe format for all standard Discord IPC indices (0..9)
+        for (int i = 0; i < 10; i++) {
+            String path = DiscordRPC.getPipePath(i);
+            assertNotNull(path, "Pipe path should not be null");
+            assertTrue(path.contains("discord-ipc-" + i), "Pipe path should contain index " + i);
+        }
+
+        DiscordRPC rpc = DiscordRPC.getInstance();
+
+        // Resilience against null/empty strings in presence payloads
+        assertDoesNotThrow(() -> {
+            JsonObject nullVersion = rpc.buildPresencePayload(true, null, null, 0L, 0L);
+            assertNotNull(nullVersion);
+            JsonObject activity = nullVersion.getAsJsonObject("args").getAsJsonObject("activity");
+            assertEquals("Играет в Minecraft", activity.get("details").getAsString());
+            assertEquals("В игре", activity.get("state").getAsString());
+        });
+
+        assertDoesNotThrow(() -> {
+            JsonObject emptyPayload = rpc.buildPresencePayload(false, "", "", 0L, 0L);
+            assertNotNull(emptyPayload);
+            JsonObject activity = emptyPayload.getAsJsonObject("args").getAsJsonObject("activity");
+            assertEquals("WlLauncher", activity.get("details").getAsString());
+            assertEquals("В лаунчере", activity.get("state").getAsString());
+        });
+    }
+
+    @Test
     void testPipePathFormat() {
         String pipe0 = DiscordRPC.getPipePath(0);
         assertNotNull(pipe0);

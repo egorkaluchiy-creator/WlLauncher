@@ -1,4 +1,4 @@
-﻿name: CI Build & Test
+name: CI Build & Test
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build & Verify
+  build-and-test:
+    name: Build, Test & Coverage
     runs-on: windows-latest
 
     steps:
@@ -26,8 +26,11 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v3
 
-      - name: Run Unit Tests
-        run: .\gradlew.bat test --no-daemon --stacktrace
+      - name: Run Unit Tests & Generate JaCoCo Coverage
+        run: .\gradlew.bat test jacocoTestReport --no-daemon --stacktrace
+
+      - name: Run Code Style & Quality Checks (Checkstyle)
+        run: .\gradlew.bat checkstyleMain checkstyleTest --no-daemon
 
       - name: Build Projects
         run: .\gradlew.bat check assemble --no-daemon
@@ -39,3 +42,36 @@ jobs:
           name: test-reports
           path: '**/build/reports/tests/'
           if-no-files-found: ignore
+
+      - name: Upload Coverage Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-coverage-reports
+          path: '**/build/reports/jacoco/'
+          if-no-files-found: ignore
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: '**/build/reports/jacoco/test/jacocoTestReport.xml'
+          fail_ci_if_error: false
+
+  sast-security:
+    name: Semgrep SAST & Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST Scan
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/java
+        continue-on-error: true
+
