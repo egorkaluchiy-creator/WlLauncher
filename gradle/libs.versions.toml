@@ -33,6 +33,7 @@ spring-boot = "2.7.18" # Spring Boot 3 requires java 17+, so we stuck here with 
 system-theme-detector = "06bbc431eb" # or use anything newer than df12cda
 text-tree = "2.1.2"
 toml4j = "0.7.3"
+imageio-webp = "3.10.1"
 xz = "1.9"
 
 [libraries]
@@ -48,6 +49,7 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 httpcomponents-httpclient-fluent = { module = "org.apache.httpcomponents.client5:httpclient5-fluent", version.ref = "httpcomponents" }
 httpcomponents-httpclient = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref = "httpcomponents" }
+imageio-webp = { module = "com.twelvemonkeys.imageio:imageio-webp", version.ref = "imageio-webp" }
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }

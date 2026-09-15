@@ -19,7 +19,7 @@ public class InstanceManagerFrame extends ExtendedFrame {
     public InstanceManagerFrame() {
         setTitle("Менеджер инстансов — WlLauncher");
         try {
-            setIconImage(Images.loadIcon("folder", 24));
+            setIconImage(Images.loadIcon("folder-open", 24));
         } catch (Exception ignored) {
         }
         setSize(550, 420);
@@ -31,7 +31,7 @@ public class InstanceManagerFrame extends ExtendedFrame {
         topPanel.setBorder(new EmptyBorder(12, 16, 8, 16));
         topPanel.setBackground(new Color(35, 39, 42));
 
-        JLabel title = new JLabel("📁 Изолированные профили (Мульти-инстансы)");
+        JLabel title = new JLabel("Изолированные профили (Мульти-инстансы)");
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
         title.setForeground(Color.WHITE);
         topPanel.add(title, BorderLayout.NORTH);
@@ -57,7 +57,7 @@ public class InstanceManagerFrame extends ExtendedFrame {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 10));
         bottomPanel.setBackground(new Color(35, 39, 42));
 
-        JButton selectBtn = new JButton("✓ Выбрать активным");
+        JButton selectBtn = new JButton("Выбрать активным");
         selectBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         selectBtn.setBackground(new Color(88, 101, 242));
         selectBtn.setForeground(Color.WHITE);
@@ -65,17 +65,17 @@ public class InstanceManagerFrame extends ExtendedFrame {
         selectBtn.addActionListener(e -> selectActiveInstance());
         bottomPanel.add(selectBtn);
 
-        JButton createBtn = new JButton("➕ Создать инстанс");
+        JButton createBtn = new JButton("Создать инстанс");
         createBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         createBtn.addActionListener(e -> createNewInstance());
         bottomPanel.add(createBtn);
 
-        JButton openFolderBtn = new JButton("📂 Открыть папку");
+        JButton openFolderBtn = new JButton("Открыть папку");
         openFolderBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         openFolderBtn.addActionListener(e -> openSelectedFolder());
         bottomPanel.add(openFolderBtn);
 
-        JButton deleteBtn = new JButton("🗑 Удалить");
+        JButton deleteBtn = new JButton("Удалить");
         deleteBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         deleteBtn.setForeground(new Color(231, 76, 60));
         deleteBtn.addActionListener(e -> deleteSelectedInstance());
@@ -86,7 +86,7 @@ public class InstanceManagerFrame extends ExtendedFrame {
 
     private void refreshList() {
         listModel.clear();
-        listModel.addElement("📌 [Стандартный] Основной каталог .minecraft");
+        listModel.addElement("[Стандартный] Основной каталог .minecraft");
         List<String> instances = InstanceManager.getInstance().listInstances();
         for (String inst : instances) {
             listModel.addElement(inst);

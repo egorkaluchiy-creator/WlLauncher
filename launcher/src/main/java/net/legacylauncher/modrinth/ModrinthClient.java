@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
@@ -26,7 +27,37 @@ public class ModrinthClient {
     private static final String USER_AGENT = "WlLauncher/1.0.0 (https://github.com/egorkaluchiy-creator/WlLauncher)";
     private static final Gson gson = new Gson();
 
-    public static List<ModrinthProject> searchMods(String query, String loader, String gameVersion, int limit) {
+    public static class ModrinthSearchResult {
+        private final List<ModrinthProject> hits;
+        private final int totalHits;
+        private final int offset;
+        private final int limit;
+
+        public ModrinthSearchResult(List<ModrinthProject> hits, int totalHits, int offset, int limit) {
+            this.hits = hits != null ? hits : Collections.emptyList();
+            this.totalHits = totalHits;
+            this.offset = offset;
+            this.limit = limit;
+        }
+
+        public List<ModrinthProject> getHits() {
+            return hits;
+        }
+
+        public int getTotalHits() {
+            return totalHits;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public int getLimit() {
+            return limit;
+        }
+    }
+
+    public static ModrinthSearchResult searchMods(String query, String loader, String gameVersion, int limit, int offset) {
         try {
             StringBuilder urlBuilder = new StringBuilder(BASE_URL).append("/search?");
             List<String> params = new ArrayList<>();
@@ -50,8 +81,12 @@ public class ModrinthClient {
             }
             facets.append("]");
 
+            int safeLimit = Math.max(1, Math.min(100, limit));
+            int safeOffset = Math.max(0, offset);
+
             params.add("facets=" + URLEncoder.encode(facets.toString(), StandardCharsets.UTF_8.name()));
-            params.add("limit=" + Math.max(1, Math.min(50, limit)));
+            params.add("limit=" + safeLimit);
+            params.add("offset=" + safeOffset);
 
             for (int i = 0; i < params.size(); i++) {
                 if (i > 0) urlBuilder.append("&");
@@ -61,15 +96,18 @@ public class ModrinthClient {
             String json = httpGet(urlBuilder.toString());
             JsonObject root = JsonParser.parseString(json).getAsJsonObject();
             JsonArray hits = root.getAsJsonArray("hits");
+            int totalHits = root.has("total_hits") ? root.get("total_hits").getAsInt() : 0;
+
             if (hits == null || hits.size() == 0) {
-                return Collections.emptyList();
+                return new ModrinthSearchResult(Collections.emptyList(), totalHits, safeOffset, safeLimit);
             }
 
             Type listType = new TypeToken<List<ModrinthProject>>() {}.getType();
-            return gson.fromJson(hits, listType);
+            List<ModrinthProject> list = gson.fromJson(hits, listType);
+            return new ModrinthSearchResult(list, totalHits, safeOffset, safeLimit);
         } catch (Exception e) {
             log.error("Failed to search Modrinth mods for query '{}'", query, e);
-            return Collections.emptyList();
+            return new ModrinthSearchResult(Collections.emptyList(), 0, offset, limit);
         }
     }
 
@@ -100,6 +138,38 @@ public class ModrinthClient {
             return versionList.isEmpty() ? null : versionList.get(0);
         } catch (Exception e) {
             log.error("Failed to get version for project '{}'", projectSlugOrId, e);
+            return null;
+        }
+    }
+
+    public static BufferedImage fetchImage(String urlStr) {
+        if (urlStr == null || urlStr.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("User-Agent", USER_AGENT);
+            conn.setRequestProperty("Accept", "image/webp,image/png,image/jpeg,image/*,*/*");
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(12000);
+            conn.setInstanceFollowRedirects(true);
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode >= 300 && responseCode <= 308) {
+                String newUrl = conn.getHeaderField("Location");
+                if (newUrl != null && !newUrl.isEmpty()) {
+                    return fetchImage(newUrl);
+                }
+            }
+            if (responseCode != 200) {
+                return null;
+            }
+
+            try (InputStream in = new BufferedInputStream(conn.getInputStream())) {
+                return javax.imageio.ImageIO.read(in);
+            }
+        } catch (Exception e) {
             return null;
         }
     }

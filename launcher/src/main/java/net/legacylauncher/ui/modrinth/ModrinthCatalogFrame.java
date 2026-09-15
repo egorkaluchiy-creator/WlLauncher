@@ -28,8 +28,9 @@ import java.util.concurrent.Executors;
 
 public class ModrinthCatalogFrame extends ExtendedFrame {
     private static final Logger log = LoggerFactory.getLogger(ModrinthCatalogFrame.class);
-    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(6);
     private static final ConcurrentHashMap<String, Icon> iconCache = new ConcurrentHashMap<>();
+    private static final int PAGE_SIZE = 50;
 
     private final JTextField searchField;
     private final JComboBox<String> loaderCombo;
@@ -37,15 +38,21 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
     private final JPanel cardsPanel;
     private final JLabel statusLabel;
     private final Timer debounceTimer;
+    private final JButton prevPageBtn;
+    private final JButton nextPageBtn;
+    private final JLabel pageInfoLabel;
+
+    private int currentPage = 1;
+    private int totalHits = 0;
 
     public ModrinthCatalogFrame() {
         setTitle("Каталог модов Modrinth — WlLauncher");
         try {
-            setIconImage(Images.loadIcon("package", 24));
+            setIconImage(Images.loadIcon("download", 24));
         } catch (Exception ignored) {
         }
-        setSize(880, 640);
-        setMinimumSize(new Dimension(750, 500));
+        setSize(920, 680);
+        setMinimumSize(new Dimension(800, 520));
         setLayout(new BorderLayout());
 
         // Top Panel: Title and Search Controls
@@ -56,7 +63,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         // Header text
         JPanel headerInfo = new JPanel(new BorderLayout());
         headerInfo.setOpaque(false);
-        JLabel titleLabel = new JLabel("🚀 Каталог модов (Modrinth API)");
+        JLabel titleLabel = new JLabel("Каталог модов Modrinth");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         titleLabel.setForeground(Color.WHITE);
 
@@ -73,10 +80,14 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         JPanel filterRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         filterRow.setOpaque(false);
 
+        JLabel searchTitle = new JLabel("Поиск:");
+        searchTitle.setForeground(Color.WHITE);
+        searchTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        filterRow.add(searchTitle);
+
         searchField = new JTextField(20);
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        searchField.putClientProperty("JTextField.placeholderText", "Поиск (например: Sodium, Iris, Xaero)...");
-        filterRow.add(new JLabel("🔍"));
+        searchField.putClientProperty("JTextField.placeholderText", "Название (Sodium, Iris, JEI)...");
         filterRow.add(searchField);
 
         loaderCombo = new JComboBox<>(new String[]{"Все загрузчики", "Fabric", "Forge", "Quilt", "NeoForge"});
@@ -94,7 +105,10 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         searchButton.setBackground(new Color(88, 101, 242));
         searchButton.setForeground(Color.WHITE);
         searchButton.setFocusPainted(false);
-        searchButton.addActionListener(e -> performSearch());
+        searchButton.addActionListener(e -> {
+            currentPage = 1;
+            performSearch();
+        });
         filterRow.add(searchButton);
 
         topPanel.add(filterRow, BorderLayout.SOUTH);
@@ -107,7 +121,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         cardsPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JScrollPane scrollPane = new JScrollPane(cardsPanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
         scrollPane.setBorder(null);
         scrollPane.getViewport().setBackground(new Color(44, 47, 51));
         add(scrollPane, BorderLayout.CENTER);
@@ -122,15 +136,49 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         statusLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         bottomBar.add(statusLabel, BorderLayout.WEST);
 
+        // Center Pagination Controls
+        JPanel paginationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 0));
+        paginationPanel.setOpaque(false);
+
+        prevPageBtn = new JButton("< Назад");
+        prevPageBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        prevPageBtn.setEnabled(false);
+        prevPageBtn.addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                performSearch();
+            }
+        });
+        paginationPanel.add(prevPageBtn);
+
+        pageInfoLabel = new JLabel("Стр. 1");
+        pageInfoLabel.setForeground(Color.WHITE);
+        pageInfoLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        paginationPanel.add(pageInfoLabel);
+
+        nextPageBtn = new JButton("Вперед >");
+        nextPageBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        nextPageBtn.setEnabled(false);
+        nextPageBtn.addActionListener(e -> {
+            int maxPages = (int) Math.ceil((double) totalHits / PAGE_SIZE);
+            if (currentPage < maxPages) {
+                currentPage++;
+                performSearch();
+            }
+        });
+        paginationPanel.add(nextPageBtn);
+
+        bottomBar.add(paginationPanel, BorderLayout.CENTER);
+
         JPanel bottomButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         bottomButtons.setOpaque(false);
 
-        JButton openModsBtn = new JButton("📂 Папка mods");
+        JButton openModsBtn = new JButton("Папка mods");
         openModsBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         openModsBtn.addActionListener(e -> OS.openFolder(InstanceManager.getInstance().getActiveModsDir()));
         bottomButtons.add(openModsBtn);
 
-        JButton installedModsBtn = new JButton("📋 Установленные моды");
+        JButton installedModsBtn = new JButton("Установленные моды");
         installedModsBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         installedModsBtn.addActionListener(e -> showInstalledModsDialog());
         bottomButtons.add(installedModsBtn);
@@ -139,7 +187,10 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         add(bottomBar, BorderLayout.SOUTH);
 
         // Debounce timer for search
-        debounceTimer = new Timer(450, e -> performSearch());
+        debounceTimer = new Timer(450, e -> {
+            currentPage = 1;
+            performSearch();
+        });
         debounceTimer.setRepeats(false);
 
         searchField.addKeyListener(new KeyAdapter() {
@@ -147,6 +198,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     debounceTimer.stop();
+                    currentPage = 1;
                     performSearch();
                 } else {
                     debounceTimer.restart();
@@ -154,8 +206,14 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
             }
         });
 
-        loaderCombo.addActionListener(e -> performSearch());
-        versionCombo.addActionListener(e -> performSearch());
+        loaderCombo.addActionListener(e -> {
+            currentPage = 1;
+            performSearch();
+        });
+        versionCombo.addActionListener(e -> {
+            currentPage = 1;
+            performSearch();
+        });
 
         // Default initial search: Top popular mods
         SwingUtilities.invokeLater(this::performSearch);
@@ -166,13 +224,18 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         String loader = loaderCombo.getSelectedIndex() == 0 ? "all" : (String) loaderCombo.getSelectedItem();
         String version = versionCombo.getSelectedIndex() == 0 ? "all" : (String) versionCombo.getSelectedItem();
 
-        statusLabel.setText("🔍 Поиск модов на Modrinth...");
-        cardsPanel.removeAll();
-        cardsPanel.revalidate();
-        cardsPanel.repaint();
+        statusLabel.setText("Поиск модов на Modrinth...");
+        prevPageBtn.setEnabled(false);
+        nextPageBtn.setEnabled(false);
+
+        int offset = (currentPage - 1) * PAGE_SIZE;
 
         executor.submit(() -> {
-            List<ModrinthProject> hits = ModrinthClient.searchMods(query, loader, version, 25);
+            ModrinthClient.ModrinthSearchResult result = ModrinthClient.searchMods(query, loader, version, PAGE_SIZE, offset);
+            List<ModrinthProject> hits = result.getHits();
+            totalHits = result.getTotalHits();
+            int maxPages = Math.max(1, (int) Math.ceil((double) totalHits / PAGE_SIZE));
+
             SwingUtilities.invokeLater(() -> {
                 cardsPanel.removeAll();
                 if (hits.isEmpty()) {
@@ -187,8 +250,13 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
                         cardsPanel.add(createModCard(p));
                         cardsPanel.add(Box.createRigidArea(new Dimension(0, 8)));
                     }
-                    statusLabel.setText("Найдено модов: " + hits.size());
+                    statusLabel.setText("Найдено: " + totalHits + " модов (показано " + hits.size() + ")");
                 }
+
+                pageInfoLabel.setText("Стр. " + currentPage + " из " + maxPages);
+                prevPageBtn.setEnabled(currentPage > 1);
+                nextPageBtn.setEnabled(currentPage < maxPages);
+
                 cardsPanel.revalidate();
                 cardsPanel.repaint();
             });
@@ -208,7 +276,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         JLabel iconLabel = new JLabel();
         iconLabel.setPreferredSize(new Dimension(64, 64));
         iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        iconLabel.setIcon(getDefaultModIcon());
+        iconLabel.setIcon(createPlaceholderIcon(project.getTitle()));
         card.add(iconLabel, BorderLayout.WEST);
 
         // Async load icon
@@ -219,7 +287,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
             } else {
                 executor.submit(() -> {
                     try {
-                        BufferedImage img = ImageIO.read(new URL(project.getIconUrl()));
+                        BufferedImage img = ModrinthClient.fetchImage(project.getIconUrl());
                         if (img != null) {
                             Image scaled = img.getScaledInstance(64, 64, Image.SCALE_SMOOTH);
                             javax.swing.ImageIcon icon = new javax.swing.ImageIcon(scaled);
@@ -249,7 +317,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         author.setForeground(new Color(170, 175, 180));
         titleRow.add(author);
 
-        JLabel downloads = new JLabel("📥 " + formatDownloads(project.getDownloads()));
+        JLabel downloads = new JLabel("Скачиваний: " + formatDownloads(project.getDownloads()));
         downloads.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         downloads.setForeground(new Color(87, 242, 135));
         titleRow.add(downloads);
@@ -278,7 +346,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         File activeMods = InstanceManager.getInstance().getActiveModsDir();
         boolean isAlreadyInstalled = checkIfModInstalled(project.getSlug(), activeMods);
         if (isAlreadyInstalled) {
-            installBtn.setText("Установлен ✓");
+            installBtn.setText("Установлен");
             installBtn.setBackground(new Color(60, 64, 69));
             installBtn.setEnabled(false);
         }
@@ -310,9 +378,9 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
                         SwingUtilities.invokeLater(() -> installBtn.setText("Скачивание " + percent + "%"));
                     });
                     SwingUtilities.invokeLater(() -> {
-                        installBtn.setText("Установлен ✓");
+                        installBtn.setText("Установлен");
                         installBtn.setBackground(new Color(46, 204, 113));
-                        statusLabel.setText("✅ Успешно установлен: " + modFile.getFilename());
+                        statusLabel.setText("Успешно установлен: " + modFile.getFilename());
                     });
                 } catch (Exception ex) {
                     log.error("Failed to install mod {}", project.getSlug(), ex);
@@ -329,6 +397,43 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         card.add(rightPanel, BorderLayout.EAST);
 
         return card;
+    }
+
+    private static Icon createPlaceholderIcon(String title) {
+        int size = 64;
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = img.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int hash = Math.abs(title == null ? 0 : title.hashCode());
+        Color c1 = new Color((hash & 0x7F) + 40, ((hash >> 8) & 0x7F) + 40, ((hash >> 16) & 0x7F) + 60);
+        Color c2 = new Color(Math.min(255, c1.getRed() + 45), Math.min(255, c1.getGreen() + 45), Math.min(255, c1.getBlue() + 45));
+
+        g2d.setPaint(new GradientPaint(0, 0, c1, size, size, c2));
+        g2d.fillRoundRect(2, 2, size - 4, size - 4, 12, 12);
+
+        g2d.setColor(new Color(255, 255, 255, 50));
+        g2d.drawRoundRect(2, 2, size - 4, size - 4, 12, 12);
+
+        String initials = getInitials(title);
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        FontMetrics fm = g2d.getFontMetrics();
+        int x = (size - fm.stringWidth(initials)) / 2;
+        int y = (size - fm.getHeight()) / 2 + fm.getAscent();
+        g2d.drawString(initials, x, y);
+        g2d.dispose();
+        return new ImageIcon(img);
+    }
+
+    private static String getInitials(String title) {
+        if (title == null || title.trim().isEmpty()) return "M";
+        String[] parts = title.trim().split("[\\s_-]+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        } else {
+            return ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        }
     }
 
     private boolean checkIfModInstalled(String slug, File modsDir) {
@@ -384,10 +489,6 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
 
         dialog.add(p, BorderLayout.SOUTH);
         dialog.setVisible(true);
-    }
-
-    private Icon getDefaultModIcon() {
-        return Images.getIcon24("download");
     }
 
     private String formatDownloads(long downloads) {

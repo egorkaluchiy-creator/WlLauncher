@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.flatlaf)
     implementation(libs.gson)
     implementation(libs.guava)
+    implementation(libs.imageio.webp)
     implementation(libs.jackson.core)
     implementation(libs.jarscanner)
     implementation(libs.java.semver)
