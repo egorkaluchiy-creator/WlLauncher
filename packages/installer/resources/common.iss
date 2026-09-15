@@ -1,5 +1,5 @@
-﻿#define Publisher "Legacy Launcher Team"
-#define URL "https://llaun.ch"
+#define Publisher "WlLauncher Team"
+#define URL "https://github.com/egorkaluchiy-creator/WlLauncher"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -16,14 +16,14 @@ AppUpdatesURL={#URL}
 AlwaysUsePersonalGroup=yes
 ArchitecturesInstallIn64BitMode=x64compatible arm64
 ArchitecturesAllowed=x64compatible arm64
-DefaultDirName={userappdata}\.tlauncher\{#Branch}\Minecraft
+DefaultDirName={userappdata}\.minecraft
 UsePreviousAppDir=no
 DisableProgramGroupPage=yes
 DisableDirPage=no
 DisableWelcomePage=no
 ExtraDiskSpaceRequired=536870912
 PrivilegesRequired=lowest
-OutputBaseFilename=LegacyLauncher_{#Branch}_Installer
+OutputBaseFilename=WlLauncher_Setup
 ;Compression=none
 Compression=lzma2/normal
 SetupIconFile=icons/icon.ico
@@ -43,7 +43,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "files\common\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "files\x64\*"; Check: IsX64Compatible and not IsArm64; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "files\arm64\*"; Check: IsArm64; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "files\common\tl.properties"; DestDir: "{app}"; AfterInstall: ExpandLauncherProperties(); Flags: ignoreversion;
+Source: "files\common\wl.properties"; DestDir: "{app}"; Flags: ignoreversion;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]
@@ -51,11 +51,11 @@ Type: filesandordirs; Name: "{app}\jre"
 Type: filesandordirs; Name: "{app}\launcher"
 
 [Icons]
-Name: "{userprograms}\{#Name}"; Filename: "{app}\LL.exe"
-Name: "{autodesktop}\{#Name}"; Filename: "{app}\LL.exe"; Tasks: desktopicon
+Name: "{userprograms}\{#Name}"; Filename: "{app}\WlLauncher.exe"
+Name: "{autodesktop}\{#Name}"; Filename: "{app}\WlLauncher.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\LL.exe"; Description: "{cm:LaunchProgram,{#StringChange(Name, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\WlLauncher.exe"; Description: "{cm:LaunchProgram,{#StringChange(Name, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [CustomMessages]
 english.UnicodeModeNonASCIIPathError=Please change installation path to the one that only contains English (ASCII) characters.%n%nYour system uses Unicode mode, which is not well-supported by Java at the moment.

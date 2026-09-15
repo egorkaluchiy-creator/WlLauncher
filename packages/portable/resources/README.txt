@@ -1,20 +1,18 @@
--- Portable Legacy Launcher --
+-- Portable WlLauncher --
 
-Legacy Launcher is a free alternative launcher for Minecraft.
-This is an example on how you can to create portable Minecraft installations.
+WlLauncher is a free alternative launcher for Minecraft.
+This is an example on how you can create portable Minecraft installations.
 
-How do I start it? LL.exe
-How do I use it? https://docs.llaun.ch/en/launcher/portable
+How do I start it? WlLauncher.exe
 
--- Портативная сборка Legacy Launcher --
+-- Портативная сборка WlLauncher --
 
-Legacy Launcher – свободный и бесплатный лаунчер для Minecraft.
-Данная сборка содержит минимальный набор файлов для создания портативной сборки.
+WlLauncher – свободный и удобный лаунчер для Minecraft.
+Данная сборка содержит полный набор файлов для запуска игры.
 
-Как запустить? LL.exe
-Как использовать? https://docs.legacylauncher.ru/launcher/portable
+Как запустить? WlLauncher.exe
 
 --
 
-Legacy Launcher @version@
+WlLauncher @version@
 @date@

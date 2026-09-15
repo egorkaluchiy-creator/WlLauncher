@@ -36,8 +36,11 @@ public class InstanceManager {
         LegacyLauncher launcher = LegacyLauncher.getInstance();
         if (launcher != null && launcher.getSettings() != null) {
             String dir = launcher.getSettings().get("minecraft.gamedir");
-            if (dir != null && !dir.trim().isEmpty()) {
-                return new File(dir);
+            if (dir != null && !dir.trim().isEmpty() && !dir.equals("./game") && !dir.equals("game") && !dir.endsWith("/game") && !dir.endsWith("\\game")) {
+                File f = new File(dir);
+                if (f.isAbsolute() && f.exists()) {
+                    return f;
+                }
             }
         }
         String appdata = System.getenv("APPDATA");

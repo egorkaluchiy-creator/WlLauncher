@@ -90,6 +90,8 @@ public final class BootstrapStarter {
     }
 
     private static void addPossibleName(ArrayList<String> possibleNames, String name, String extension) {
+        possibleNames.add("wl" + name + "." + extension);
+        possibleNames.add("wllauncher" + name + "." + extension);
         possibleNames.add("tl" + name + "." + extension);
         possibleNames.add("tlauncher" + name + "." + extension);
     }

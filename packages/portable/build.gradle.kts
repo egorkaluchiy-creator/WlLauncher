@@ -116,8 +116,8 @@ val preparePortableBuild by tasks.registering(Sync::class) {
     }
 
     from("resources") {
-        inputs.file("tl.args.0.txt")
-        inputs.file("tl.args.1.txt")
+        inputs.file("wl.args.0.txt")
+        inputs.file("wl.args.1.txt")
 
         filter<ReplaceTokens>(
             "tokens" to mapOf(
@@ -125,8 +125,8 @@ val preparePortableBuild by tasks.registering(Sync::class) {
                     .withLocale(Locale.ROOT)
                     .format(LocalDate.now(ZoneOffset.UTC)),
                 "version" to projects.launcher.version,
-                "bootstrap_args" to file("tl.args.0.txt").readText().trim(),
-                "launcher_args" to file("tl.args.1.txt").readText().trim(),
+                "bootstrap_args" to file("wl.args.0.txt").readText().trim(),
+                "launcher_args" to file("wl.args.1.txt").readText().trim(),
                 "launcher_properties" to "minecraft.jre.dir=./jre\n"
             )
         )

@@ -1,4 +1,4 @@
-﻿// launcher.cpp – 32‑bit stub that:
+// launcher.cpp – 32‑bit stub that:
 //   • picks a compatible JVM (prefers native arch, falls back to others)
 //   • is DPI‑aware
 //   • supports argument files:
@@ -151,7 +151,7 @@ static std::wstring unescape(const std::wstring& in)
     for (size_t i = 0; i < in.size(); ++i) {
         if (in[i] == L'\\' && i + 1 < in.size()) {
             wchar_t nxt = in[i + 1];
-            if (nxt == L'n') { out.push_back(L'\\n'); ++i; continue; }
+            if (nxt == L'n') { out.push_back(L'\n'); ++i; continue; }
             if (nxt == L'\\') { out.push_back(L'\\'); ++i; continue; }
         }
         out.push_back(in[i]);
@@ -168,7 +168,7 @@ static void load_argfile(const std::filesystem::path& file,
         new std::codecvt_utf8_utf16<wchar_t>));
     std::wstring line;
     while (std::getline(fin, line)) {
-        if (!line.empty() && line.back() == L'\\r') line.pop_back();
+        if (!line.empty() && line.back() == L'\r') line.pop_back();
         if (line.empty()) continue;
         out.push_back(unescape(line));
     }

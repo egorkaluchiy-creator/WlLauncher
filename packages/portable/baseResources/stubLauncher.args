@@ -1,4 +1,4 @@
--Dtlauncher.bootstrap.restartExec=LL.exe
+-Dtlauncher.bootstrap.restartExec=WlLauncher.exe
 -Xmx64M
 -jar
 launcher/bootstrap.jar

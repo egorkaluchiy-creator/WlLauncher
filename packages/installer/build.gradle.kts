@@ -28,13 +28,13 @@ val prepareInstaller by tasks.registering(Sync::class) {
             from(portable.tasks.named("preparePortableBaseBuild"))
 
             from("launcherResources") {
-                inputs.file(portable.file("tl.args.0.txt"))
-                inputs.file(portable.file("tl.args.1.txt"))
+                inputs.file(portable.file("wl.args.0.txt"))
+                inputs.file(portable.file("wl.args.1.txt"))
 
                 filter<ReplaceTokens>(
                     "tokens" to mapOf(
-                        "bootstrap_args" to portable.file("tl.args.0.txt").readText().trim(),
-                        "launcher_args" to portable.file("tl.args.1.txt").readText().trim(),
+                        "bootstrap_args" to portable.file("wl.args.0.txt").readText().trim(),
+                        "launcher_args" to portable.file("wl.args.1.txt").readText().trim(),
                     )
                 )
 
