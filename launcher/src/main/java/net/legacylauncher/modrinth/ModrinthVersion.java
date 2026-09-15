@@ -19,6 +19,15 @@ public class ModrinthVersion {
     @SerializedName("loaders")
     private List<String> loaders;
 
+    @SerializedName("version_type")
+    private String versionType;
+
+    @SerializedName("date_published")
+    private String datePublished;
+
+    @SerializedName("downloads")
+    private long downloads;
+
     @SerializedName("files")
     private List<ModrinthFile> files;
 
@@ -40,6 +49,18 @@ public class ModrinthVersion {
 
     public List<String> getLoaders() {
         return loaders;
+    }
+
+    public String getVersionType() {
+        return versionType != null ? versionType : "release";
+    }
+
+    public String getDatePublished() {
+        return datePublished;
+    }
+
+    public long getDownloads() {
+        return downloads;
     }
 
     public List<ModrinthFile> getFiles() {

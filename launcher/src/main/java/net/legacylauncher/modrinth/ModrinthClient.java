@@ -111,7 +111,7 @@ public class ModrinthClient {
         }
     }
 
-    public static ModrinthVersion getLatestCompatibleVersion(String projectSlugOrId, String loader, String gameVersion) {
+    public static List<ModrinthVersion> getProjectVersions(String projectSlugOrId, String loader, String gameVersion) {
         try {
             StringBuilder urlBuilder = new StringBuilder(BASE_URL).append("/project/").append(projectSlugOrId).append("/version?");
             List<String> params = new ArrayList<>();
@@ -130,16 +130,25 @@ public class ModrinthClient {
             String json = httpGet(urlBuilder.toString());
             JsonArray versions = JsonParser.parseString(json).getAsJsonArray();
             if (versions == null || versions.size() == 0) {
-                return null;
+                return Collections.emptyList();
             }
 
             Type listType = new TypeToken<List<ModrinthVersion>>() {}.getType();
             List<ModrinthVersion> versionList = gson.fromJson(versions, listType);
-            return versionList.isEmpty() ? null : versionList.get(0);
+            return versionList != null ? versionList : Collections.emptyList();
         } catch (Exception e) {
-            log.error("Failed to get version for project '{}'", projectSlugOrId, e);
-            return null;
+            log.error("Failed to get versions for project '{}'", projectSlugOrId, e);
+            return Collections.emptyList();
         }
+    }
+
+    public static List<ModrinthVersion> getAllProjectVersions(String projectSlugOrId) {
+        return getProjectVersions(projectSlugOrId, null, null);
+    }
+
+    public static ModrinthVersion getLatestCompatibleVersion(String projectSlugOrId, String loader, String gameVersion) {
+        List<ModrinthVersion> versions = getProjectVersions(projectSlugOrId, loader, gameVersion);
+        return versions.isEmpty() ? null : versions.get(0);
     }
 
     public static BufferedImage fetchImage(String urlStr) {

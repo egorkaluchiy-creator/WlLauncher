@@ -1,4 +1,4 @@
-Legacy Launcher is free alternative Minecraft launcher
+WlLauncher is free alternative Minecraft launcher
 
 Project website: https://llaun.ch/
 
