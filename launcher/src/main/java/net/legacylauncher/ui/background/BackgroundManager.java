@@ -22,7 +22,7 @@ public final class BackgroundManager extends ExtendedLayeredPane {
 
     private final Lazy<ImageBackground> imageBackground;
     public final Lazy<OldAnimatedBackground> oldBackground;
-    private final FXWrapper<MediaFxBackground> mediaFxBackground;
+    private final IBackground mediaFxBackground;
 
     private IBackground background;
 
@@ -36,18 +36,24 @@ public final class BackgroundManager extends ExtendedLayeredPane {
 
         imageBackground = Lazy.of(ImageBackground::new);
         oldBackground = Lazy.of(OldAnimatedBackground::new);
-        FXWrapper<MediaFxBackground> _mediaFxBackground = null;
+        mediaFxBackground = createFxBackground();
+    }
+
+    private static IBackground createFxBackground() {
         try {
             if (JavaVersion.getCurrent().getMajor() >= 11) {
-                _mediaFxBackground = new FXWrapper<>(MediaFxBackground.class);
+                Class.forName("javafx.application.Platform");
+                Class.forName("javafx.embed.swing.JFXPanel");
+                Class.forName("javafx.scene.layout.Pane");
+                return new FXWrapper<>(MediaFxBackground.class);
             } else {
-                log.info("MediaFxBackground is not be available because it requires Java 11+");
+                log.info("MediaFxBackground is not available because it requires Java 11+");
             }
         } catch (Throwable t) {
             log.info("MediaFxBackground will not be available: {}", t.toString());
             log.debug("Detailed exception", t);
         }
-        mediaFxBackground = _mediaFxBackground;
+        return null;
     }
 
     public boolean isMediaFxAvailable() {
