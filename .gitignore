@@ -1,0 +1,38 @@
+# Build Outputs
+out/
+build/
+*/target/
+*/bin/
+bin/
+
+# Temporary and Cache files
+.gradle/
+.idea/
+.vscode/
+*.iml
+.settings/
+*.log
+proguard.log
+meta.json
+*/src/main/resources/**/meta.json
+
+# OS files
+**/Thumbs.db
+**/.DS_Store
+
+# Native Binaries and Build Artifacts (Keep source code only)
+*.exe
+*.o
+*.obj
+*.zip
+*.dll
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+payload.zip
+Setup_res.o
+WlLauncher_res.o
+
+# Logs and runtime data
+/logs/*
+/lib/*
+.minecraft/
