@@ -18,8 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class DiscordRPC {
-    private static final String CLIENT_ID = "1215354921503195196";
+    public static final String CLIENT_ID = "1215354921503195196";
     private static final DiscordRPC INSTANCE = new DiscordRPC();
+
+    public static final long INITIAL_RETRY_DELAY_MS = 5000;
+    public static final long MAX_RETRY_DELAY_MS = 120000;
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "WlLauncher-DiscordRPC");
@@ -37,11 +40,14 @@ public class DiscordRPC {
     private String currentGameVersion = "";
     private String currentPlayerName = "";
 
+    private long currentRetryDelayMs = INITIAL_RETRY_DELAY_MS;
+    private long nextAllowedConnectTimeMs = 0;
+
     public static DiscordRPC getInstance() {
         return INSTANCE;
     }
 
-    private DiscordRPC() {
+    DiscordRPC() {
     }
 
     public synchronized void init() {
@@ -49,14 +55,18 @@ public class DiscordRPC {
             return;
         }
         launcherStartTime = System.currentTimeMillis();
-        executor.scheduleWithFixedDelay(this::connectAndSync, 0, 10, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this::tick, 1, 5, TimeUnit.SECONDS);
     }
 
     public synchronized void setInLauncher() {
         this.inGame = false;
         this.currentGameVersion = "";
         this.currentPlayerName = "";
-        executor.execute(this::sendCurrentPresence);
+        executor.execute(() -> {
+            if (ensureConnected()) {
+                sendCurrentPresence();
+            }
+        });
     }
 
     public synchronized void setInGame(String version, String playerName) {
@@ -64,7 +74,11 @@ public class DiscordRPC {
         this.gameStartTime = System.currentTimeMillis();
         this.currentGameVersion = version != null ? version : "Minecraft";
         this.currentPlayerName = playerName != null ? playerName : "";
-        executor.execute(this::sendCurrentPresence);
+        executor.execute(() -> {
+            if (ensureConnected()) {
+                sendCurrentPresence();
+            }
+        });
     }
 
     public synchronized void shutdown() {
@@ -75,17 +89,39 @@ public class DiscordRPC {
         });
     }
 
-    private void connectAndSync() {
+    public boolean isConnected() {
+        return connected.get() && pipe != null;
+    }
+
+    public boolean isRunning() {
+        return running.get();
+    }
+
+    private void tick() {
         if (!running.get()) return;
 
         if (!connected.get() || pipe == null) {
-            if (tryConnect()) {
-                sendCurrentPresence();
+            long now = System.currentTimeMillis();
+            if (now >= nextAllowedConnectTimeMs) {
+                if (tryConnect()) {
+                    sendCurrentPresence();
+                }
             }
         }
     }
 
-    private boolean tryConnect() {
+    private boolean ensureConnected() {
+        if (connected.get() && pipe != null) {
+            return true;
+        }
+        long now = System.currentTimeMillis();
+        if (now >= nextAllowedConnectTimeMs) {
+            return tryConnect();
+        }
+        return false;
+    }
+
+    private synchronized boolean tryConnect() {
         closePipe();
         for (int i = 0; i < 10; i++) {
             try {
@@ -95,6 +131,8 @@ public class DiscordRPC {
                     pipe = new RandomAccessFile(pipePath, "rw");
                     if (sendHandshake()) {
                         connected.set(true);
+                        currentRetryDelayMs = INITIAL_RETRY_DELAY_MS;
+                        nextAllowedConnectTimeMs = 0;
                         log.info("Connected to Discord IPC on pipe {}", i);
                         return true;
                     }
@@ -103,10 +141,22 @@ public class DiscordRPC {
                 closePipe();
             }
         }
+
+        // Connection failed - apply exponential backoff with full jitter
+        currentRetryDelayMs = calculateNextBackoff(currentRetryDelayMs);
+        nextAllowedConnectTimeMs = System.currentTimeMillis() + currentRetryDelayMs;
+        log.debug("Discord not available, next retry in {} ms", currentRetryDelayMs);
         return false;
     }
 
-    private String getPipePath(int index) {
+    public static long calculateNextBackoff(long currentDelay) {
+        double multiplier = 1.5;
+        double jitter = Math.random() * 2000;
+        long next = (long) (currentDelay * multiplier + jitter);
+        return Math.min(MAX_RETRY_DELAY_MS, Math.max(INITIAL_RETRY_DELAY_MS, next));
+    }
+
+    public static String getPipePath(int index) {
         if (OS.WINDOWS.isCurrent()) {
             return "\\\\.\\pipe\\discord-ipc-" + index;
         }
@@ -134,44 +184,50 @@ public class DiscordRPC {
         }
     }
 
+    public JsonObject buildPresencePayload(boolean inGame, String version, String player, long startTimestamp, long pid) {
+        JsonObject activity = new JsonObject();
+        JsonObject timestamps = new JsonObject();
+        JsonObject assets = new JsonObject();
+
+        if (inGame) {
+            String ver = (version != null && !version.isEmpty()) ? version : "Minecraft";
+            activity.addProperty("details", "Играет в " + ver);
+            activity.addProperty("state", (player == null || player.isEmpty()) ? "В игре" : "Игрок: " + player);
+            timestamps.addProperty("start", startTimestamp / 1000L);
+            assets.addProperty("large_image", "logo");
+            assets.addProperty("large_text", "Minecraft " + ver);
+            assets.addProperty("small_image", "wllauncher");
+            assets.addProperty("small_text", "WlLauncher");
+        } else {
+            activity.addProperty("details", "WlLauncher");
+            activity.addProperty("state", "В лаунчере");
+            timestamps.addProperty("start", startTimestamp / 1000L);
+            assets.addProperty("large_image", "logo");
+            assets.addProperty("large_text", "WlLauncher — Быстрый лаунчер Minecraft");
+        }
+
+        activity.add("timestamps", timestamps);
+        activity.add("assets", assets);
+
+        JsonObject args = new JsonObject();
+        args.addProperty("pid", pid);
+        args.add("activity", activity);
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("cmd", "SET_ACTIVITY");
+        payload.add("args", args);
+        payload.addProperty("nonce", UUID.randomUUID().toString());
+        return payload;
+    }
+
     private void sendCurrentPresence() {
         if (!connected.get() || pipe == null) {
             return;
         }
 
         try {
-            JsonObject activity = new JsonObject();
-            JsonObject timestamps = new JsonObject();
-            JsonObject assets = new JsonObject();
-
-            if (inGame) {
-                activity.addProperty("details", "Играет в " + currentGameVersion);
-                activity.addProperty("state", (currentPlayerName.isEmpty() ? "В игре" : "Игрок: " + currentPlayerName));
-                timestamps.addProperty("start", gameStartTime / 1000L);
-                assets.addProperty("large_image", "logo");
-                assets.addProperty("large_text", "Minecraft " + currentGameVersion);
-                assets.addProperty("small_image", "wllauncher");
-                assets.addProperty("small_text", "WlLauncher");
-            } else {
-                activity.addProperty("details", "WlLauncher");
-                activity.addProperty("state", "В лаунчере");
-                timestamps.addProperty("start", launcherStartTime / 1000L);
-                assets.addProperty("large_image", "logo");
-                assets.addProperty("large_text", "WlLauncher — Быстрый лаунчер Minecraft");
-            }
-
-            activity.add("timestamps", timestamps);
-            activity.add("assets", assets);
-
-            JsonObject args = new JsonObject();
-            args.addProperty("pid", getProcessId());
-            args.add("activity", activity);
-
-            JsonObject payload = new JsonObject();
-            payload.addProperty("cmd", "SET_ACTIVITY");
-            payload.add("args", args);
-            payload.addProperty("nonce", UUID.randomUUID().toString());
-
+            long startTime = inGame ? gameStartTime : launcherStartTime;
+            JsonObject payload = buildPresencePayload(inGame, currentGameVersion, currentPlayerName, startTime, getProcessId());
             writeFrame(1, payload.toString());
         } catch (Exception e) {
             log.debug("Failed to send presence frame: {}", e.getMessage());
@@ -213,3 +269,4 @@ public class DiscordRPC {
         return 0;
     }
 }
+

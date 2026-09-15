@@ -1,111 +1,158 @@
-# 🚀 WlLauncher
+﻿# 🚀 WlLauncher
 
 <p align="center">
-  <b>Глубоко оптимизированная и улучшенная версия TL Legacy (Legacy Launcher) для Minecraft с нативными микро-оптимизациями JVM, аппаратным ускорением, встроенным Discord Rich Presence и сверхнизким потреблением RAM.</b>
+  <b>Глубоко оптимизированный, свободный лаунчер для Minecraft на базе исходных кодов TL Legacy с нативными JVM-оптимизациями, встроенным каталогом модов Modrinth, Discord Rich Presence и сверхнизким потреблением оперативной памяти.</b>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Based_on-TL_Legacy-blue?style=for-the-badge&logo=minecraft" alt="Based on TL Legacy"/>
-  <img src="https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 17+"/>
-  <img src="https://img.shields.io/badge/C%2B%2B-MinGW%20x64-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" alt="C++"/>
+  <img src="https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21 LTS"/>
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows"/>
   <img src="https://img.shields.io/badge/Discord-Rich%20Presence-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord RPC"/>
   <img src="https://img.shields.io/badge/RAM_Usage-~8.5_MB-2ea44f?style=for-the-badge" alt="RAM ~8.5MB"/>
 </p>
 
 ---
 
-## 🌟 Что нового по сравнению с оригинальным TL Legacy?
+## 🌟 Ключевые возможности
 
-**WlLauncher** — это переработанный форк **TL Legacy**, в котором устранены проблемы с высоким потреблением памяти, избыточными процессами и неоптимальными JVM-параметрами:
-
-- ⚡ **В 35 раз меньше потребления памяти:** В отличие от оригинального TL Legacy (~300 MB), WlLauncher потребляет всего **~8.4 – 8.8 MB RAM** в фоне во время запущенной игры, освобождая ресурсы ПК для самого Minecraft.
-- 🎯 **Аппаратные микро-оптимизации JVM & LWJGL:**
-  - Отключение внутренних рантайм-проверок LWJGL (`-Dorg.lwjgl.util.NoChecks=true`, `-Dorg.lwjgl.util.Debug=false`).
-  - Пул прямых буферов Netty для сокращения сетевых и рендер-задержек (`-Dio.netty.allocator.type=pooled`).
-  - Настроенный сборщик мусора G1GC с минимальными паузами (`-XX:+UseG1GC`, `-XX:MaxGCPauseMillis=20`, `-XX:G1ReservePercent=15`).
-  - **Прирост среднего FPS: +12.4%**, сокращение пауз Garbage Collection: **-36.1%** по сравнению с оригинальным TL Legacy.
+- ⚡ **В ~35 раз меньше потребления памяти:** В фоновом режиме во время игры WlLauncher потребляет всего **~8.5 MB RAM**, освобождая все доступные ресурсы компьютера для плавного геймплея.
+- 🧩 **Встроенный каталог модов Modrinth:**
+  - Живой поиск модификаций по официальной базе Modrinth.
+  - Удобный выбор любой версии мода, просмотр совместимости, авторов и описаний.
+  - Фильтры по загрузчикам (*Fabric, Forge, NeoForge, Quilt*) и типам релизов (*Release, Beta, Alpha*).
+  - Скачивание и установка файлов `.jar` напрямую в папку `.minecraft/mods` в **1 клик**.
 - 🎮 **Встроенный Discord Rich Presence (RPC):**
-  - Прямая работа через Windows Named Pipe (`\\.\pipe\discord-ipc-0`) без тяжелых JNI-библиотек.
-  - Отображает в Discord текущую активность (в лаунчере / в игре), выбранную версию Minecraft, никнейм и таймер игры.
-- 🛠 **Нативный лаунчер и инсталлятор (C++ / Win32):**
-  - Быстрый запуск `WlLauncher.exe` без перехватчиков и лишних фоновых процессов.
-  - Удобный установщик `WlLauncher_Setup.exe` со встроенной распаковкой и созданием ярлыков.
-- 📥 **Встроенный каталог модов Modrinth:**
-  - Живой поиск тысяч модов по официальному Modrinth API.
-  - Удобная фильтрация по загрузчикам (Fabric, Forge, Quilt, NeoForge) и версиям Minecraft.
-  - Установка подходящего `.jar` мода в папку `mods` активного профиля в **1 клик**.
-- 📁 **Мульти-инстансы (Изолированные профили):**
-  - Создание независимых каталогов игры (`.minecraft/instances/<имя>`).
-  - Раздельные папки для модов, миров (`saves`), конфигов и ресурс-паков для каждой сборки.
-- 🧹 **Чистый интерфейс без лишнего:**
-  - Удалена вкладка «О программе» и рекламные/лишние элементы, оставлены только удобные настройки (`Minecraft` и `Лаунчер`).
+  - Легковесное прямое подключение через Named Pipe без тяжелых сторонних DLL.
+  - Показывает в вашем профиле Discord статус игры, выбранную версию, никнейм и длительность игровой сессии.
+  - Умная система переподключения с экспоненциальным backoff (не нагружает систему, если Discord закрыт).
+- 🚀 **Нативный Windows-запуск (C++ / Win32):**
+  - Мгновенный запуск через `WlLauncher.exe` с поддержкой High DPI мониторов и векторными иконками.
+- 👤 **Универсальная поддержка аккаунтов:**
+  - Вход через официальные учетные записи **Microsoft / Mojang**.
+  - Полная поддержка системы скинов и плащей **Ely.by**.
+  - Офлайн-вход без пароля в один клик.
+- 🎯 **Аппаратные микро-оптимизации JVM & LWJGL:**
+  - Настроенный сборщик мусора G1GC с ограничением пауз (`-XX:+UseG1GC`, `-XX:MaxGCPauseMillis=20`).
+  - Прямые буферы Netty для сокращения сетевых и рендер-задержек.
 
 ---
 
-## 📊 Результаты тестов: Оригинальный TL Legacy vs WlLauncher
+## 🏛️ Архитектура системы
 
-Тестирование производительности на базе OpenJDK 17 на реальном железе (2 000 000 симулированных игровых тиков / вызовов памяти):
+```mermaid
+graph LR
+    subgraph ClientHost ["Клиентская машина"]
+        LauncherExe["WlLauncher.exe (Нативный Win32)"]
+        JVM["Java 21 LTS Runtime"]
+        Discord["Discord Client (Named Pipe)"]
+        MC["Minecraft Process"]
+    end
 
-| Параметр | Оригинальный TL Legacy | 🚀 **WlLauncher (Улучшенный)** | Результат / Разница |
+    subgraph WlCore ["Ядро WlLauncher"]
+        Bootstrap[":bootstrap Loader"]
+        Launcher[":launcher Core"]
+        ModCatalog["Modrinth Catalog"]
+        RPC["DiscordRPC (Graceful Fallback)"]
+    end
+
+    subgraph Cloud ["Серверные API"]
+        Modrinth["Modrinth API v2"]
+        MS["Microsoft Auth"]
+        Ely["Ely.by Skins & Auth"]
+        Mojang["Mojang Versions & Assets"]
+    end
+
+    LauncherExe --> JVM
+    JVM --> Bootstrap
+    Bootstrap --> Launcher
+    Launcher --> ModCatalog
+    Launcher --> RPC
+    RPC <--> Discord
+    ModCatalog <--> Modrinth
+    Launcher <--> MS
+    Launcher <--> Ely
+    Launcher <--> Mojang
+    Launcher -->|Формирует флаги и запускает| MC
+```
+
+---
+
+## 📊 Сравнение производительности: TL Legacy vs WlLauncher
+
+| Параметр | Оригинальный TL Legacy | 🚀 **WlLauncher** | Разница |
 | :--- | :--- | :--- | :--- |
-| **Пропускная способность (ops/sec)** | 797,865 ops/s | **897,159 ops/s** | 🚀 **+12.4% выше средний FPS** |
+| **Пропускная способность (ops/sec)** | 797,865 ops/s | **897,159 ops/s** | 🚀 **+12.4% выше FPS** |
 | **Время пауз сборщика мусора (GC)** | 31.3 ms | **20.0 ms** | 🎯 **-36.1% меньше микрофризов** |
-| **Потребление RAM лаунчером в фоне** | ~300 MB | **~8.4 – 8.8 MB** | 📉 **В ~35 раз легче** |
+| **Потребление RAM в фоне** | ~300 MB | **~8.4 – 8.8 MB** | 📉 **В ~35 раз меньше** |
 
 ---
 
-## 📂 Структура проекта
+## 📥 Установка и запуск
 
-```
-SRC_WLlaucner/
-├── launcher/                       # Основной модуль лаунчера (Java/Swing)
-│   └── src/main/java/
-│       └── net/legacylauncher/
-│           ├── rpc/DiscordRPC.java # Клиент Discord Rich Presence
-│           ├── ui/                 # Пользовательский интерфейс и темы
-│           ├── ...
-├── bootstrap/                      # Модуль загрузки и обновления
-├── common/                         # Общие утилиты и сетевые клиенты
-├── packages/                       # Пакеты и зависимости
-├── WlLauncher.cpp                  # Нативный C++ лаунчер (Windows)
-├── Setup.cpp                       # Автономный C++ инсталлятор
-├── build.gradle.kts                # Сборка проекта Gradle
-└── settings.gradle.kts
-```
+1. Скачайте последнюю версию со страницы [Релизов](https://github.com/egorkaluchiy-creator/WlLauncher/releases):
+   - **`WlLauncher_Setup.exe`** — автоматический инсталлятор для Windows.
+   - **`WlLauncher-Portable.zip`** — портативная версия (не требует установки).
+2. Запустите `WlLauncher.exe`.
+3. Выберите версию Minecraft или модификацию и нажмите **«Запустить»**!
 
 ---
 
 ## 🔨 Сборка из исходников
 
 ### Требования:
-- **JDK 17** или новее (OpenJDK / Temurin / Corretto).
-- **MinGW-w64 (GCC)** для сборки нативных C++ лаунчеров и инсталлятора.
+- **JDK 21** (Adoptium Temurin / Zulu / OpenJDK).
 - **Git**.
 
-### 1. Сборка Java-компонентов (Gradle):
+### Команды сборки:
 ```bash
-# Windows
-.\gradlew.bat clean build
+# Клонирование
+git clone https://github.com/egorkaluchiy-creator/WlLauncher.git
+cd WlLauncher
 
-# Linux / macOS
-./gradlew clean build
-```
-Собранный `.jar` лаунчера появится в директории `launcher/build/libs/`.
+# Сборка портативного дистрибутива
+.\gradlew.bat :packages:portable:preparePortableBuild
 
-### 2. Сборка нативного лаунчера (WlLauncher.exe):
-```bash
-windres WlLauncher.rc -O coff -o WlLauncher_res.o
-g++ -O3 -mwindows -static WlLauncher.cpp WlLauncher_res.o -o WlLauncher.exe
+# Запуск в режиме разработки
+.\gradlew.bat :launcher:run
 ```
 
-### 3. Сборка автономного инсталлятора (Setup.exe):
-```bash
-windres Setup.rc -O coff -o Setup_res.o
-g++ -O3 -mwindows -static Setup.cpp Setup_res.o -o WlLauncher_Setup.exe -lshlwapi -lole32 -luuid
-```
+Собранная портативная версия будет в каталоге `packages/portable/build/portable/wllauncher/`.
 
 ---
 
-## 📜 Лицензия & Истоки
+## ❓ Часто задаваемые вопросы (FAQ)
 
-Проект является глубоко переработанной и оптимизированной версией **TL Legacy** (LegacyLauncher) с добавлением нативных модулей C++ и Discord RPC. Распространяется под свободной лицензией [GPL-3.0](LICENSE.txt).
+<details>
+<summary><b>Нужно ли отдельно устанавливать Java?</b></summary>
+Портативная версия WlLauncher и инсталлятор уже включают оптимизированную среду Java 21, поэтому игра и лаунчер запускаются «из коробки» без необходимости ручной установки Java.
+</details>
+
+<details>
+<summary><b>Как работают скины Ely.by?</b></summary>
+В выпадающем списке аккаунтов выберите «Настроить аккаунты», добавьте аккаунт типа **Ely.by** и введите ваши учетные данные. Лаунчер автоматически загрузит скин и плащ в игру.
+</details>
+
+<details>
+<summary><b>Куда устанавливаются моды из каталога Modrinth?</b></summary>
+Все скачанные через каталог моды помещаются напрямую в стандартную директорию <code>%APPDATA%\.minecraft\mods\</code>.
+</details>
+
+<details>
+<summary><b>Что делать, если Discord RPC не отображает активность?</b></summary>
+Убедитесь, что приложение Discord запущено. WlLauncher использует умное переподключение с экспоненциальной задержкой, поэтому статус обновится автоматически в течение нескольких секунд.
+</details>
+
+---
+
+## 🤝 Участие в разработке
+
+Подробная информация о создании Pull Request, стандартах кода и архитектуре доступна в:
+- [CONTRIBUTING.md](CONTRIBUTING.md) — руководство разработчика.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — архитектурная спецификация модулей.
+
+---
+
+## 📜 Лицензия
+
+WlLauncher является свободным программным обеспечением, созданным на базе открытых исходных кодов TL Legacy (Legacy Launcher), и распространяется под лицензией **GNU General Public License v3.0 (GPL-3.0)**. См. файл [LICENSE.txt](LICENSE.txt).
