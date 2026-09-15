@@ -1,9 +1,9 @@
 package net.legacylauncher.ui.modrinth;
 
-import net.legacylauncher.instances.InstanceManager;
 import net.legacylauncher.modrinth.ModrinthClient;
 import net.legacylauncher.modrinth.ModrinthProject;
 import net.legacylauncher.modrinth.ModrinthVersion;
+import net.legacylauncher.util.MinecraftUtil;
 import net.legacylauncher.util.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ public class ModrinthVersionDialog extends JDialog {
     private final JComboBox<String> typeFilterCombo;
     private final JPanel versionsListPanel;
     private final JLabel statusLabel;
+    private final File modsDir;
 
     private List<ModrinthVersion> allVersions = Collections.emptyList();
 
@@ -38,6 +39,10 @@ public class ModrinthVersionDialog extends JDialog {
         super(parent, "Выбор версии — " + (project != null ? project.getTitle() : "Мод"), ModalityType.APPLICATION_MODAL);
         this.project = project;
         this.projectIcon = projectIcon;
+        this.modsDir = new File(MinecraftUtil.getWorkingDirectory(), "mods");
+        if (!this.modsDir.exists()) {
+            this.modsDir.mkdirs();
+        }
 
         setSize(780, 560);
         setMinimumSize(new Dimension(680, 440));
@@ -69,8 +74,7 @@ public class ModrinthVersionDialog extends JDialog {
         nameLabel.setForeground(Color.WHITE);
         titleBox.add(nameLabel);
 
-        File activeMods = InstanceManager.getInstance().getActiveModsDir();
-        JLabel pathInfo = new JLabel("Установка в: " + activeMods.getAbsolutePath());
+        JLabel pathInfo = new JLabel("Установка в: " + modsDir.getAbsolutePath());
         pathInfo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         pathInfo.setForeground(new Color(180, 190, 200));
         titleBox.add(pathInfo);
@@ -133,7 +137,7 @@ public class ModrinthVersionDialog extends JDialog {
 
         JButton openFolderBtn = new JButton("Папка mods");
         openFolderBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        openFolderBtn.addActionListener(e -> OS.openFolder(activeMods));
+        openFolderBtn.addActionListener(e -> OS.openFolder(modsDir));
         bottomButtons.add(openFolderBtn);
 
         JButton closeBtn = new JButton("Закрыть");
@@ -217,9 +221,8 @@ public class ModrinthVersionDialog extends JDialog {
             emptyLabel.setBorder(new EmptyBorder(20, 10, 20, 10));
             versionsListPanel.add(emptyLabel);
         } else {
-            File activeMods = InstanceManager.getInstance().getActiveModsDir();
             for (ModrinthVersion ver : versions) {
-                versionsListPanel.add(createVersionRow(ver, activeMods));
+                versionsListPanel.add(createVersionRow(ver, modsDir));
                 versionsListPanel.add(Box.createRigidArea(new Dimension(0, 6)));
             }
         }

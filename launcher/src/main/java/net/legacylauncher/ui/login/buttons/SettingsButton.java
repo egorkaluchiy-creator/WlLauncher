@@ -41,10 +41,6 @@ public class SettingsButton extends LocalizableButton implements Blockable, Noti
         JMenuItem modrinthCatalog = new JMenuItem("Скачать моды (Modrinth)");
         modrinthCatalog.addActionListener(e -> new net.legacylauncher.ui.modrinth.ModrinthCatalogFrame().showAtCenter());
         popup.add(modrinthCatalog);
-
-        JMenuItem instanceManager = new JMenuItem("Менеджер инстансов (Профили)");
-        instanceManager.addActionListener(e -> new net.legacylauncher.ui.instances.InstanceManagerFrame().showAtCenter());
-        popup.add(instanceManager);
         notices = LocalizableMenuItem.newItem("loginform.button.settings.notices", e -> {
             //lf.scene.getMainPane().openNoticeScene();
             lf.scene.setNoticeSidePanelEnabled(true);

@@ -2,8 +2,6 @@ package net.legacylauncher.ui.login;
 
 import net.legacylauncher.LegacyLauncher;
 import net.legacylauncher.configuration.Configuration;
-import net.legacylauncher.instances.InstanceManager;
-import net.legacylauncher.instances.InstanceManagerListener;
 import net.legacylauncher.managers.SwingVersionManagerListener;
 import net.legacylauncher.managers.VersionManager;
 import net.legacylauncher.managers.VersionManagerListener;
@@ -38,7 +36,7 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
-public class VersionComboBox extends ExtendedComboBox<VersionSyncInfo> implements Blockable, VersionManagerListener, LocalizableComponent, LoginForm.LoginProcessListener, InstanceManagerListener {
+public class VersionComboBox extends ExtendedComboBox<VersionSyncInfo> implements Blockable, VersionManagerListener, LocalizableComponent, LoginForm.LoginProcessListener {
     private static final long serialVersionUID = -9122074452728842733L;
     static Account.AccountType showVersionForType = Account.AccountType.PLAIN;
     private static final VersionSyncInfo LOADING;
@@ -81,8 +79,6 @@ public class VersionComboBox extends ExtendedComboBox<VersionSyncInfo> implement
                 selectedVersion = selected.getID();
                 loginForm.global.setForcefully("login.version", selectedVersion, false);
                 loginForm.global.store();
-                String activeInst = InstanceManager.getInstance().getSelectedInstance();
-                InstanceManager.getInstance().setInstanceVersion(activeInst, selectedVersion);
                 setToolTipText(selectedVersion);
             }
             if (loginForm.scene.settingsForm.isLoaded()) {
@@ -93,10 +89,7 @@ public class VersionComboBox extends ExtendedComboBox<VersionSyncInfo> implement
                         .updateForCurrentlySelectedVersion();
             }
         });
-        String activeInst = InstanceManager.getInstance().getSelectedInstance();
-        String savedInstVer = InstanceManager.getInstance().getInstanceVersion(activeInst);
-        selectedVersion = (savedInstVer != null && !savedInstVer.trim().isEmpty()) ? savedInstVer : lf.global.get("login.version");
-        InstanceManager.getInstance().addListener(this);
+        selectedVersion = lf.global.get("login.version");
         initComboBoxFilter();
         addItem(LOADING);
         ready = true;
@@ -240,36 +233,6 @@ public class VersionComboBox extends ExtendedComboBox<VersionSyncInfo> implement
                                 .collect(Collectors.toList())
                         : null
         );
-    }
-
-    @Override
-    public void onActiveInstanceChanged(String oldInstance, String newInstance) {
-        SwingUtilities.invokeLater(() -> {
-            String ver = InstanceManager.getInstance().getInstanceVersion(newInstance);
-            if (ver == null || ver.trim().isEmpty()) {
-                ver = loginForm.global.get("login.version");
-            }
-            if (ver != null) {
-                selectedVersion = ver;
-                boolean selected = false;
-                for (int i = 0; i < model.getSize(); i++) {
-                    VersionSyncInfo v = model.getElementAt(i);
-                    if (v != null && ver.equals(v.getID())) {
-                        setSelectedItem(v);
-                        selected = true;
-                        break;
-                    }
-                }
-                if (!selected) {
-                    setToolTipText(ver);
-                }
-                loginForm.buttons.play.updateState();
-            }
-        });
-    }
-
-    @Override
-    public void onInstancesListChanged() {
     }
 
     @Override

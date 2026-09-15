@@ -1,7 +1,6 @@
 package net.legacylauncher.ui.modrinth;
 
 import net.legacylauncher.LegacyLauncher;
-import net.legacylauncher.instances.InstanceManager;
 import net.legacylauncher.modrinth.ModrinthClient;
 import net.legacylauncher.modrinth.ModrinthProject;
 import net.legacylauncher.modrinth.ModrinthVersion;
@@ -40,6 +39,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
     private final JButton prevPageBtn;
     private final JButton nextPageBtn;
     private final JLabel pageInfoLabel;
+    private final File modsDir;
 
     private int currentPage = 1;
     private int totalHits = 0;
@@ -54,6 +54,11 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         setMinimumSize(new Dimension(850, 520));
         setLayout(new BorderLayout());
 
+        modsDir = new File(net.legacylauncher.util.MinecraftUtil.getWorkingDirectory(), "mods");
+        if (!modsDir.exists()) {
+            modsDir.mkdirs();
+        }
+
         // Top Panel: Title and Search Controls
         JPanel topPanel = new JPanel(new BorderLayout(10, 10));
         topPanel.setBorder(new EmptyBorder(12, 16, 12, 16));
@@ -66,8 +71,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         titleLabel.setForeground(Color.WHITE);
 
-        File activeMods = InstanceManager.getInstance().getActiveModsDir();
-        JLabel pathLabel = new JLabel("Папка установки: " + activeMods.getAbsolutePath());
+        JLabel pathLabel = new JLabel("Папка установки: " + modsDir.getAbsolutePath());
         pathLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         pathLabel.setForeground(new Color(180, 190, 200));
 
@@ -173,7 +177,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
 
         JButton openModsBtn = new JButton("Папка mods");
         openModsBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        openModsBtn.addActionListener(e -> OS.openFolder(InstanceManager.getInstance().getActiveModsDir()));
+        openModsBtn.addActionListener(e -> OS.openFolder(modsDir));
         bottomButtons.add(openModsBtn);
 
         JButton installedModsBtn = new JButton("Установленные моды");
@@ -341,8 +345,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         installBtn.setPreferredSize(new Dimension(130, 36));
 
         // Check if already in active mods folder
-        File activeMods = InstanceManager.getInstance().getActiveModsDir();
-        boolean isAlreadyInstalled = checkIfModInstalled(project.getSlug(), activeMods);
+        boolean isAlreadyInstalled = checkIfModInstalled(project.getSlug(), modsDir);
         if (isAlreadyInstalled) {
             installBtn.setText("Установлен");
             installBtn.setBackground(new Color(60, 64, 69));
@@ -353,7 +356,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
             dialog.setVisible(true);
 
             // Re-check installation state
-            boolean updatedInstalled = checkIfModInstalled(project.getSlug(), activeMods);
+            boolean updatedInstalled = checkIfModInstalled(project.getSlug(), modsDir);
             if (updatedInstalled) {
                 installBtn.setText("Установлен");
                 installBtn.setBackground(new Color(60, 64, 69));
@@ -418,7 +421,6 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
     }
 
     private void showInstalledModsDialog() {
-        File modsDir = InstanceManager.getInstance().getActiveModsDir();
         File[] files = modsDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         JDialog dialog = new JDialog(this, "Установленные моды (" + (files == null ? 0 : files.length) + ")", true);

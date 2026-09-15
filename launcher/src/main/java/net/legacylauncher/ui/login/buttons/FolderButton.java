@@ -122,13 +122,15 @@ public class FolderButton extends LocalizableButton implements Unblockable {
     }
 
     private void openDefFolder() {
-        File activeInst = net.legacylauncher.instances.InstanceManager.getInstance().getActiveGameDir();
-        openFolder(activeInst != null ? activeInst : MinecraftUtil.getWorkingDirectory(false));
+        openFolder(MinecraftUtil.getWorkingDirectory(false));
     }
 
     private void openModsFolder() {
-        File activeMods = net.legacylauncher.instances.InstanceManager.getInstance().getActiveModsDir();
-        openFolder(activeMods);
+        File rootFolder = getFamilyFolder();
+        if (rootFolder == null) {
+            rootFolder = MinecraftUtil.getWorkingDirectory(false);
+        }
+        openFolder(new File(rootFolder, "mods"));
     }
 
     @Override

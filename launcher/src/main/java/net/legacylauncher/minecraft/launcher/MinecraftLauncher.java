@@ -475,12 +475,7 @@ public class MinecraftLauncher implements JavaProcessListener {
             throw new MinecraftException(true, "Insufficient space " + rootDir.getAbsolutePath() + "(" + freeSpace + ")", "free-space", rootDir);
         }
 
-        File activeInstDir = net.legacylauncher.instances.InstanceManager.getInstance().getActiveGameDir();
-        if (activeInstDir != null && !activeInstDir.equals(rootDir)) {
-            gameDir = activeInstDir;
-        } else {
-            gameDir = getGameDir(rootDir, family, version.getID(), settings.getSeparateDirs());
-        }
+        gameDir = getGameDir(rootDir, family, version.getID(), settings.getSeparateDirs());
 
         detectCharsetOnWindows();
 
