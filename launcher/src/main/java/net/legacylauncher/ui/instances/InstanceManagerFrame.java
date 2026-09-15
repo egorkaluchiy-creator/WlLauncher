@@ -1,6 +1,7 @@
 package net.legacylauncher.ui.instances;
 
 import net.legacylauncher.instances.InstanceManager;
+import net.legacylauncher.instances.InstanceManagerListener;
 import net.legacylauncher.ui.images.Images;
 import net.legacylauncher.ui.swing.extended.ExtendedFrame;
 import net.legacylauncher.util.OS;
@@ -8,10 +9,14 @@ import net.legacylauncher.util.OS;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
 
-public class InstanceManagerFrame extends ExtendedFrame {
+public class InstanceManagerFrame extends ExtendedFrame implements InstanceManagerListener {
     private final DefaultListModel<String> listModel;
     private final JList<String> instanceList;
     private final JLabel currentLabel;
@@ -22,13 +27,13 @@ public class InstanceManagerFrame extends ExtendedFrame {
             setIconImage(Images.loadIcon("folder-open", 24));
         } catch (Exception ignored) {
         }
-        setSize(550, 420);
-        setMinimumSize(new Dimension(450, 320));
+        setSize(580, 440);
+        setMinimumSize(new Dimension(480, 340));
         setLayout(new BorderLayout(10, 10));
 
         // Top Banner
         JPanel topPanel = new JPanel(new BorderLayout(5, 5));
-        topPanel.setBorder(new EmptyBorder(12, 16, 8, 16));
+        topPanel.setBorder(new EmptyBorder(12, 16, 10, 16));
         topPanel.setBackground(new Color(35, 39, 42));
 
         JLabel title = new JLabel("Изолированные профили (Мульти-инстансы)");
@@ -51,13 +56,25 @@ public class InstanceManagerFrame extends ExtendedFrame {
         instanceList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         instanceList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         instanceList.setBorder(new EmptyBorder(6, 8, 6, 8));
+        instanceList.setCellRenderer(new InstanceCellRenderer());
+
+        // Double click to activate
+        instanceList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    selectActiveInstance();
+                }
+            }
+        });
+
         add(new JScrollPane(instanceList), BorderLayout.CENTER);
 
         // Bottom Controls
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 10));
         bottomPanel.setBackground(new Color(35, 39, 42));
 
-        JButton selectBtn = new JButton("Выбрать активным");
+        JButton selectBtn = new JButton("Сделать активным");
         selectBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         selectBtn.setBackground(new Color(88, 101, 242));
         selectBtn.setForeground(Color.WHITE);
@@ -82,11 +99,19 @@ public class InstanceManagerFrame extends ExtendedFrame {
         bottomPanel.add(deleteBtn);
 
         add(bottomPanel, BorderLayout.SOUTH);
+
+        InstanceManager.getInstance().addListener(this);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                InstanceManager.getInstance().removeListener(InstanceManagerFrame.this);
+            }
+        });
     }
 
     private void refreshList() {
         listModel.clear();
-        listModel.addElement("[Стандартный] Основной каталог .minecraft");
+        listModel.addElement("default");
         List<String> instances = InstanceManager.getInstance().listInstances();
         for (String inst : instances) {
             listModel.addElement(inst);
@@ -96,7 +121,7 @@ public class InstanceManagerFrame extends ExtendedFrame {
     private String formatActiveInstanceName() {
         String active = InstanceManager.getInstance().getSelectedInstance();
         if ("default".equalsIgnoreCase(active) || active.isEmpty()) {
-            return "[Стандартный] .minecraft";
+            return "[Основной каталог] .minecraft";
         }
         return active;
     }
@@ -107,14 +132,10 @@ public class InstanceManagerFrame extends ExtendedFrame {
             JOptionPane.showMessageDialog(this, "Выберите инстанс из списка!", "Внимание", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if (index == 0) {
-            InstanceManager.getInstance().setSelectedInstance("default");
-        } else {
-            String name = listModel.get(index);
-            InstanceManager.getInstance().setSelectedInstance(name);
-        }
+        String name = listModel.get(index);
+        InstanceManager.getInstance().setSelectedInstance(name);
         currentLabel.setText("Активный профиль: " + formatActiveInstanceName());
-        JOptionPane.showMessageDialog(this, "Активный инстанс переключен на: " + formatActiveInstanceName(), "Успешно", JOptionPane.INFORMATION_MESSAGE);
+        instanceList.repaint();
     }
 
     private void createNewInstance() {
@@ -122,7 +143,6 @@ public class InstanceManagerFrame extends ExtendedFrame {
         if (name != null && !name.trim().isEmpty()) {
             try {
                 InstanceManager.getInstance().createInstance(name.trim());
-                refreshList();
                 InstanceManager.getInstance().setSelectedInstance(name.trim());
                 currentLabel.setText("Активный профиль: " + formatActiveInstanceName());
             } catch (Exception ex) {
@@ -133,10 +153,14 @@ public class InstanceManagerFrame extends ExtendedFrame {
 
     private void openSelectedFolder() {
         int index = instanceList.getSelectedIndex();
-        if (index <= 0) {
+        if (index < 0) {
+            OS.openFolder(InstanceManager.getInstance().getRootDir());
+            return;
+        }
+        String name = listModel.get(index);
+        if ("default".equalsIgnoreCase(name)) {
             OS.openFolder(InstanceManager.getInstance().getRootDir());
         } else {
-            String name = listModel.get(index);
             File folder = new File(InstanceManager.getInstance().getInstancesDir(), name);
             OS.openFolder(folder);
         }
@@ -144,16 +168,71 @@ public class InstanceManagerFrame extends ExtendedFrame {
 
     private void deleteSelectedInstance() {
         int index = instanceList.getSelectedIndex();
-        if (index <= 0) {
-            JOptionPane.showMessageDialog(this, "Основной каталог по умолчанию нельзя удалить!", "Запрещено", JOptionPane.WARNING_MESSAGE);
+        if (index < 0) {
             return;
         }
         String name = listModel.get(index);
+        if ("default".equalsIgnoreCase(name)) {
+            JOptionPane.showMessageDialog(this, "Основной каталог по умолчанию нельзя удалить!", "Запрещено", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         int confirm = JOptionPane.showConfirmDialog(this, "Вы уверены, что хотите удалить инстанс '" + name + "' и все его моды/миры?", "Подтверждение удаления", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (confirm == JOptionPane.YES_OPTION) {
             InstanceManager.getInstance().deleteInstance(name);
+            currentLabel.setText("Активный профиль: " + formatActiveInstanceName());
+        }
+    }
+
+    @Override
+    public void onActiveInstanceChanged(String oldInstance, String newInstance) {
+        SwingUtilities.invokeLater(() -> {
+            currentLabel.setText("Активный профиль: " + formatActiveInstanceName());
+            instanceList.repaint();
+        });
+    }
+
+    @Override
+    public void onInstancesListChanged() {
+        SwingUtilities.invokeLater(() -> {
             refreshList();
             currentLabel.setText("Активный профиль: " + formatActiveInstanceName());
+        });
+    }
+
+    private static class InstanceCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            setBorder(new EmptyBorder(6, 10, 6, 10));
+            String name = (String) value;
+            String active = InstanceManager.getInstance().getSelectedInstance();
+            boolean isActive = ("default".equalsIgnoreCase(name) && "default".equalsIgnoreCase(active))
+                    || (name != null && name.equalsIgnoreCase(active));
+
+            String ver = InstanceManager.getInstance().getInstanceVersion(name);
+            String verInfo = (ver != null && !ver.trim().isEmpty()) ? " [Версия: " + ver + "]" : " [Версия: не выбрана]";
+
+            String displayName;
+            if ("default".equalsIgnoreCase(name)) {
+                displayName = "Основной каталог (.minecraft)" + verInfo;
+            } else {
+                displayName = name + verInfo;
+            }
+
+            if (isActive) {
+                setText("✓  " + displayName + "  (АКТИВЕН)");
+                if (!isSelected) {
+                    setForeground(new Color(87, 242, 135));
+                    setFont(getFont().deriveFont(Font.BOLD));
+                }
+            } else {
+                setText("    " + displayName);
+                if (!isSelected) {
+                    setForeground(Color.LIGHT_GRAY);
+                    setFont(getFont().deriveFont(Font.PLAIN));
+                }
+            }
+            return this;
         }
     }
 }

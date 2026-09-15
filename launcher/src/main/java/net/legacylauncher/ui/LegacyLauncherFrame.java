@@ -69,6 +69,16 @@ public class LegacyLauncherFrame extends JFrame {
         updateUILocale();
         setWindowSize();
         setWindowTitle();
+        net.legacylauncher.instances.InstanceManager.getInstance().addListener(new net.legacylauncher.instances.InstanceManagerListener() {
+            @Override
+            public void onActiveInstanceChanged(String oldInstance, String newInstance) {
+                SwingUtilities.invokeLater(LegacyLauncherFrame.this::setWindowTitle);
+            }
+
+            @Override
+            public void onInstancesListChanged() {
+            }
+        });
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -235,6 +245,10 @@ public class LegacyLauncherFrame extends JFrame {
     public void setWindowTitle() {
         updateBrand();
         String title = "WlLauncher";
+        String active = net.legacylauncher.instances.InstanceManager.getInstance().getSelectedInstance();
+        if (active != null && !active.isEmpty() && !"default".equalsIgnoreCase(active)) {
+            title = title + " • [" + active + "]";
+        }
         if (LegacyLauncher.getInstance().isDebug()) {
             title = String.format(java.util.Locale.ROOT, "%s [%s]", title, U.memoryStatus());
         }
