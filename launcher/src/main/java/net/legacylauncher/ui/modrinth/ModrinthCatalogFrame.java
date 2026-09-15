@@ -387,7 +387,7 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
     }
 
     private Icon getDefaultModIcon() {
-        return Images.getIcon24("package");
+        return Images.getIcon24("download");
     }
 
     private String formatDownloads(long downloads) {
