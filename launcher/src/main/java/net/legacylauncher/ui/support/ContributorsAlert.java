@@ -29,7 +29,7 @@ public final class ContributorsAlert {
             return;
         }
         if (contributors == null) {
-            try (InputStream is = ContributorsAlert.class.getResourceAsStream("/lang/_contrib.json")) {
+            try (InputStream is = ContributorsAlert.class.getResourceAsStream("/net/legacylauncher/lang/_contrib.json")) {
                 if (is != null) {
                     InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
                     contributors = new GsonBuilder().create().fromJson(reader, JsonObject.class);
@@ -42,7 +42,7 @@ public final class ContributorsAlert {
         }
         if (proofreaders == null) {
             try {
-                URL pUrl = ContributorsAlert.class.getResource("/lang/_proofr.properties");
+                URL pUrl = ContributorsAlert.class.getResource("/net/legacylauncher/lang/_proofr.properties");
                 if (pUrl != null) {
                     proofreaders = new SimpleConfiguration(pUrl);
                 }

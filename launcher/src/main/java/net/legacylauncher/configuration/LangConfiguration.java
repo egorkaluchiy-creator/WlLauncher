@@ -24,10 +24,7 @@ public final class LangConfiguration {
     private static final String LOCALE_PATH = "/net/legacylauncher/lang";
 
     private static final String[] KNOWN_LOCALES = {
-            "ru_RU", "en_US", "uk_UA", "be_BY",
-            "cs_CZ", "de_DE", "es_ES", "fr_FR",
-            "in_ID", "it_IT", "pl_PL", "pt_BR",
-            "pt_PT", "ro_RO", "tr_TR", "vi", "zh_CN"
+            "ru_RU", "en_US"
     };
 
     private static final Lazy<List<Locale>> localeList = Lazy.of(() -> {
@@ -88,11 +85,9 @@ public final class LangConfiguration {
         }
 
         if (foundLocales.isEmpty()) {
-            log.warn("Fallback to default locale set (ru_RU, en_US, uk_UA, be_BY)");
+            log.warn("Fallback to default locale set (ru_RU, en_US)");
             foundLocales.add(ru_RU);
             foundLocales.add(Locale.US);
-            foundLocales.add(U.getLocale("uk_UA"));
-            foundLocales.add(U.getLocale("be_BY"));
         }
 
         List<Locale> result = new ArrayList<>(foundLocales);
@@ -273,9 +268,6 @@ public final class LangConfiguration {
                     if (in != null) break;
                 }
             }
-        }
-        if (in == null) {
-            in = LangConfiguration.class.getResourceAsStream("/lang/lang_" + localeStr + ".properties");
         }
 
         if (in != null) {
