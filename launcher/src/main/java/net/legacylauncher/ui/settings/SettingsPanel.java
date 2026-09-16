@@ -145,9 +145,8 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
         });
         useSeparateDir = new EditorFieldHandler("minecraft.gamedir.separate", new EditorComboBox<>(new SeparateDirsConverter(true), Configuration.SeparateDirs.values()));
         minecraftTab.add(new EditorPair("settings.client.gamedir.label", directory, useSeparateDir));
-        resolution = new EditorFieldHandler("minecraft.size", new EditorResolutionField("settings.client.resolution.width", "settings.client.resolution.height", global.getDefaultClientWindowSize(), false));
-        fullscreen = new EditorFieldHandler("minecraft.fullscreen", new EditorCheckBox("settings.client.resolution.fullscreen"));
-        minecraftTab.add(new EditorPair("settings.client.resolution.label", resolution, fullscreen));
+        resolution = null;
+        fullscreen = null;
         minecraftTab.nextPane();
         List<ReleaseType> releaseTypes = ReleaseType.getDefinable();
         List<EditorHandler> versions = new ArrayList<>(releaseTypes.size());
@@ -187,25 +186,8 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
 
         add(minecraftTab);
         EditorPanelTab tlauncherTab = new EditorPanelTab("settings.tab.tlauncher");
-        launcherResolution = new EditorFieldHandler("gui.size", new EditorResolutionField("settings.client.resolution.width", "settings.client.resolution.height", global.getDefaultLauncherWindowSize(), false));
-        launcherResolution.addListener(new EditorFieldListener() {
-            protected void onChange(EditorHandler handler, String oldValue, String newValue) {
-                if (SettingsPanel.this.ready) {
-                    IntegerArray arr = IntegerArray.parseIntegerArray(newValue);
-                    tlauncher.getFrame().setSize(arr.get(0), arr.get(1));
-                }
-            }
-        });
-        tlauncherTab.add(new EditorPair("settings.clientres.label", launcherResolution));
-        loginFormDirection = new EditorFieldHandler("gui.direction.loginform", new EditorComboBox<>(new DirectionConverter(), Direction.values()));
-        loginFormDirection.addListener(new EditorFieldChangeListener() {
-            protected void onChange(String oldValue, String newValue) {
-                if (SettingsPanel.this.ready) {
-                    tlauncher.getFrame().mp.defaultScene.updateDirection();
-                }
-            }
-        });
-        tlauncherTab.add(new EditorPair("settings.direction.label", loginFormDirection));
+        launcherResolution = null;
+        loginFormDirection = null;
         laf = new EditorFieldHandler(FlatLafConfiguration.KEY_STATE, new EditorComboBox<>(
                 new LocalizableStringConverter<String>("settings.laf.state") {
                     @Override
@@ -276,50 +258,9 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
         tlauncherTab.add(new EditorPair("settings.crash.label", crashManager));
         tlauncherTab.nextPane();
 
-        List<EditorHandler> defReleaseTypeHandlers = new ArrayList<>();
-        for (ReleaseType releaseType : new ReleaseType[]{ReleaseType.RELEASE, ReleaseType.SNAPSHOT, ReleaseType.MODIFIED}) {
-            defReleaseTypeHandlers.add(new EditorFieldHandler("gui.alerton." + releaseType, new EditorCheckBox("settings.alert-on." + releaseType)));
-            defReleaseTypeHandlers.add(EditorPair.NEXT_COLUMN);
-        }
-
-        alertUpdates = new EditorGroupHandler(defReleaseTypeHandlers);
-        tlauncherTab.add(new EditorPair("settings.alert-on.label", defReleaseTypeHandlers));
-        tlauncherTab.nextPane();
-
-        allowNoticeDisable = new EditorFieldHandler("notice.enabled", new EditorCheckBox("notice.enable"));
-        allowNoticeDisable.addListener(new EditorFieldChangeListener() {
-            protected void onChange(String oldValue, String newValue) {
-                if (SettingsPanel.this.ready) {
-                    Stats.noticeStatusUpdated(Boolean.parseBoolean(newValue));
-                    tlauncher.getFrame().getNotices().selectRandom();
-                    Alert.showLocMessage("notice.enable.alert." + newValue);
-                }
-            }
-        });
-        tlauncherTab.add(new EditorPair("notice.enable.label", allowNoticeDisable));
-        tlauncherTab.nextPane();
-
-        switchToBeta = new EditorFieldHandler("bootstrap.switchToBeta", new EditorCheckBox("settings.switch-to-beta"));
-        switchToBeta.addListener(new EditorFieldChangeListener() {
-            protected void onChange(String oldValue, String newValue) {
-                if (SettingsPanel.this.ready) {
-                    Alert.showMessage("", Localizable.get("settings.restart"));
-                }
-            }
-        });
-
-        Optional<Boolean> canSwitchToBetaBranch = LegacyLauncher.getInstance().getMetadata("can_switch_to_beta_branch", Boolean.class);
-        if (canSwitchToBetaBranch.isPresent()) {
-            // only show if bootstrap supports it
-            tlauncherTab.add(new EditorPair("settings.switch-to-beta.label", switchToBeta));
-            tlauncherTab.nextPane();
-            if (!canSwitchToBetaBranch.filter(v -> v == Boolean.TRUE).isPresent()) {
-                // disable if can't switch to beta branch
-                Blocker.block(switchToBeta, "cant_switch_to_beta_branch");
-                switchToBeta.setPath(null); // -> ignored, not updated or saved
-                switchToBeta.setValue(true);
-            }
-        }
+        alertUpdates = new EditorGroupHandler(Collections.emptyList());
+        allowNoticeDisable = null;
+        switchToBeta = null;
 
         locale = new EditorFieldHandler("locale", new SettingsLocaleComboBox(this));
         locale.addListener(new EditorFieldChangeListener() {
@@ -410,21 +351,17 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
     }
 
     private String[] getLafStates() {
-        if (!FlatLaf.getStates().isEmpty()) {
-            return FlatLaf.getStates().toArray(new String[0]);
-        }
-        String existingValue = tlauncher.getSettings().get(FlatLafConfiguration.KEY_STATE);
-        if (existingValue != null) {
-            return new String[]{existingValue};
-        }
-        return new String[]{null};
+        return new String[]{
+                FlatLafConfiguration.State.DARK.toString(),
+                FlatLafConfiguration.State.LIGHT.toString()
+        };
     }
 
     public void updateValues() {
         boolean globalUnSaveable = !global.isSaveable();
         Iterator<EditorHandler> iterator = handlers.iterator();
 
-        if (!tlauncher.isNoticeDisablingAllowed()) {
+        if (allowNoticeDisable != null && !tlauncher.isNoticeDisablingAllowed()) {
             allowNoticeDisable.getComponent().setEnabled(false);
             //allowNoticeDisableHint.getComponent().setEnabled(false);
         }

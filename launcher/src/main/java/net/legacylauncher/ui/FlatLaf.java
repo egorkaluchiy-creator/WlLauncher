@@ -217,10 +217,16 @@ public class FlatLaf {
 
     public static void setupModernUIDefaults() {
         // Modern rounded geometry and emerald accent
-        UIManager.put("Button.arc", 12);
-        UIManager.put("Component.arc", 12);
+        UIManager.put("Button.arc", 10);
+        UIManager.put("Component.arc", 10);
         UIManager.put("TextComponent.arc", 10);
-        UIManager.put("ProgressBar.arc", 12);
+        UIManager.put("TextField.arc", 10);
+        UIManager.put("FormattedTextField.arc", 10);
+        UIManager.put("PasswordField.arc", 10);
+        UIManager.put("Spinner.arc", 10);
+        UIManager.put("Spinner.buttonBackground", new Color(0, 0, 0, 0));
+        UIManager.put("Spinner.buttonSeparatorColor", new Color(0, 0, 0, 0));
+        UIManager.put("ProgressBar.arc", 10);
         UIManager.put("ScrollBar.thumbArc", 8);
         UIManager.put("PopupMenu.borderCornerRadius", 10);
         UIManager.put("Component.accentColor", new Color(16, 185, 129));

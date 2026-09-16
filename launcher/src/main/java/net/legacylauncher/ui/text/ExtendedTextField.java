@@ -15,6 +15,7 @@ public class ExtendedTextField extends JTextField {
     private String oldPlaceholder;
 
     protected ExtendedTextField(CenterPanel panel, String placeholder, String value) {
+        setOpaque(false);
         theme = panel == null ? CenterPanel.defaultTheme : panel.getTheme();
         this.placeholder = placeholder;
         addFocusListener(new FocusListener() {
@@ -90,6 +91,7 @@ public class ExtendedTextField extends JTextField {
         }
         setForeground(getValue() == null ? theme.getFocusLost() : theme.getFocus());
         setBackground(theme.getBackground());
+        setOpaque(false);
     }
 
     public void setValue(Object obj) {

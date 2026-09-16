@@ -70,6 +70,14 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
     }
 
     @Override
+    public void setEditor(ComboBoxEditor anEditor) {
+        super.setEditor(anEditor);
+        if (anEditor != null && anEditor.getEditorComponent() instanceof JComponent) {
+            ((JComponent) anEditor.getEditorComponent()).setOpaque(false);
+        }
+    }
+
+    @Override
     public void updateUI() {
         super.updateUI();
         setOpaque(false);

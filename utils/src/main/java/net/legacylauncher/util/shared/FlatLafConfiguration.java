@@ -9,7 +9,7 @@ public class FlatLafConfiguration {
     private static final String FLATLAF_PREFIX = PREFIX + "flatlaf.";
 
     public static final String KEY_STATE = PREFIX + "state";
-    private static final String /* State.toString() */ DEFAULT_STATE = State.AUTO.toString();
+    private static final String DEFAULT_STATE = State.DARK.toString();
 
     private static final String DARK_THEME_PREFIX_NO_DOT = FLATLAF_PREFIX + "dark";
     private static final String LIGHT_THEME_PREFIX_NO_DOT = FLATLAF_PREFIX + "light";

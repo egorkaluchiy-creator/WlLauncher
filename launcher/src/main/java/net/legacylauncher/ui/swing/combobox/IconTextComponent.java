@@ -9,10 +9,12 @@ public class IconTextComponent extends JTextField {
 
     public IconTextComponent() {
         super();
+        setOpaque(false);
     }
 
     public IconTextComponent(int cols) {
         super(cols);
+        setOpaque(false);
     }
 
     private IconTextComponentHelper getHelper() {

@@ -58,6 +58,7 @@ public class AccountCellRenderer implements ListCellRenderer<Account<? extends U
         JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         renderer.setAlignmentY(0.5F);
         if (index == -1) {
+            renderer.setOpaque(false);
             renderer.setBorder(BorderFactory.createEmptyBorder(1, 6, 1, 6));
             renderer.setIconTextGap(8);
         }
