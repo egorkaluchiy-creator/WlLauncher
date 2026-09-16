@@ -132,7 +132,10 @@ static fs::path find_java(const fs::path& baseDir) {
     // 1. Local bundled JRE
     if (check_java_home(baseDir / L"jre", found)) return found;
     if (check_java_home(baseDir / L"jre" / L"x64", found)) return found;
-    if (check_java_home(baseDir / L"jre" / L"x86", found)) return found;
+    if (check_java_home(baseDir / L"jre" / L"arm64", found)) return found;
+    if (check_java_home(baseDir / L"launcher" / L"jre", found)) return found;
+    if (check_java_home(baseDir / L"launcher" / L"jre" / L"x64", found)) return found;
+    if (check_java_home(baseDir / L"launcher" / L"jre" / L"arm64", found)) return found;
     if (check_java_home(baseDir / L"runtime", found)) return found;
 
     // 2. JAVA_HOME / JDK_HOME
@@ -246,17 +249,26 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     fs::path bootstrap_jar;
     fs::path launcher_jar;
     fs::path libraries_dir;
+    fs::path working_dir = base;
 
-    if (fs::exists(base / L"launcher" / L"bootstrap.jar")) {
+    if (fs::exists(base / L"launcher" / L"launcher" / L"bootstrap.jar")) {
+        working_dir = base / L"launcher";
+        bootstrap_jar = base / L"launcher" / L"launcher" / L"bootstrap.jar";
+        launcher_jar = base / L"launcher" / L"launcher" / L"launcher.jar";
+        libraries_dir = base / L"launcher" / L"launcher" / L"libraries";
+    } else if (fs::exists(base / L"launcher" / L"bootstrap.jar")) {
+        working_dir = base / L"launcher";
         bootstrap_jar = base / L"launcher" / L"bootstrap.jar";
         launcher_jar = base / L"launcher" / L"launcher.jar";
         libraries_dir = base / L"launcher" / L"libraries";
     } else if (fs::exists(base / L"bootstrap.jar")) {
+        working_dir = base;
         bootstrap_jar = base / L"bootstrap.jar";
         launcher_jar = base / L"launcher.jar";
         libraries_dir = base / L"libraries";
     } else if (fs::exists(base / L"packages" / L"portable" / L"build" / L"portableBase" / L"wllauncher" / L"launcher" / L"bootstrap.jar")) {
         fs::path pBase = base / L"packages" / L"portable" / L"build" / L"portableBase" / L"wllauncher" / L"launcher";
+        working_dir = pBase.parent_path();
         bootstrap_jar = pBase / L"bootstrap.jar";
         launcher_jar = pBase / L"launcher.jar";
         libraries_dir = pBase / L"libraries";
@@ -270,7 +282,7 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
 
     std::vector<std::wstring> jvmArgs;
 
-    // Maximum memory and startup speed optimization
+    // Memory and GC optimization
     jvmArgs.push_back(L"-Xms16M");
     jvmArgs.push_back(L"-Xmx128M");
     jvmArgs.push_back(L"-XX:+UseSerialGC");
@@ -282,18 +294,20 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     jvmArgs.push_back(L"-XX:MaxMetaspaceSize=64M");
     jvmArgs.push_back(L"-XX:ReservedCodeCacheSize=32M");
     jvmArgs.push_back(L"-XX:CompressedClassSpaceSize=16M");
-    jvmArgs.push_back(L"-XX:+PerfDisableSharedMem");
-    jvmArgs.push_back(L"-XX:+UseStringDeduplication");
-    jvmArgs.push_back(L"-Dsun.misc.URLClassPath.disableJarChecking=true");
-    jvmArgs.push_back(L"-Dawt.useSystemAAFontSettings=lcd");
-    jvmArgs.push_back(L"-Dswing.aatext=true");
-    jvmArgs.push_back(L"-Dsun.java2d.d3d=true");
-    jvmArgs.push_back(L"-Dsun.java2d.noddraw=true");
-    jvmArgs.push_back(L"-Dsun.java2d.ddoffscreen=true");
     jvmArgs.push_back(L"-Dfile.encoding=UTF-8");
     jvmArgs.push_back(L"-Dsun.stdout.encoding=UTF-8");
     jvmArgs.push_back(L"-Dsun.stderr.encoding=UTF-8");
     jvmArgs.push_back(L"-Djava.net.useSystemProxies=true");
+    jvmArgs.push_back(L"-Dsun.java2d.d3d=true");
+    jvmArgs.push_back(L"-Dsun.java2d.noddraw=true");
+    jvmArgs.push_back(L"-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT");
+    jvmArgs.push_back(L"-Djna.tmpdir=natives/jna");
+
+    // Java 9+ module exports for FlatLaf / JavaFX
+    jvmArgs.push_back(L"--add-exports");
+    jvmArgs.push_back(L"java.desktop/sun.awt=javafx.swing");
+    jvmArgs.push_back(L"--add-exports");
+    jvmArgs.push_back(L"javafx.graphics/com.sun.javafx.application=ALL-UNNAMED");
 
     fs::path abs_bootstrap = fs::absolute(bootstrap_jar);
     fs::path abs_launcher = fs::absolute(launcher_jar);
@@ -310,6 +324,8 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     jvmArgs.push_back(abs_bootstrap.wstring());
     jvmArgs.push_back(L"org.springframework.boot.loader.PropertiesLauncher");
 
+    jvmArgs.push_back(L"--packageMode");
+    jvmArgs.push_back(L"portable");
     jvmArgs.push_back(L"--ignoreUpdate");
     jvmArgs.push_back(L"--ignoreSelfUpdate");
     jvmArgs.push_back(L"--targetJar");
@@ -317,6 +333,18 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     jvmArgs.push_back(L"--targetLibFolder");
     jvmArgs.push_back(abs_libraries.wstring());
     jvmArgs.push_back(L"--");
+
+    fs::path settingsPath = working_dir / L"wl.properties";
+    if (!fs::exists(settingsPath)) {
+        settingsPath = base / L"wl.properties";
+    }
+    if (fs::exists(settingsPath)) {
+        jvmArgs.push_back(L"--settings");
+        jvmArgs.push_back(settingsPath.wstring());
+    } else {
+        jvmArgs.push_back(L"--settings");
+        jvmArgs.push_back(L"wl.properties");
+    }
 
     // Forward CLI args if any
     int argc = 0;
@@ -339,14 +367,14 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     PROCESS_INFORMATION pi = {};
 
     BOOL success = CreateProcessW(
-        java_exe.c_str(),
+        nullptr,
         &cmd[0],
         nullptr,
         nullptr,
         FALSE,
         0,
         nullptr,
-        base.c_str(),
+        working_dir.c_str(),
         &si,
         &pi
     );

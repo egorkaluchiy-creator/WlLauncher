@@ -89,6 +89,9 @@ public class AssetsManager extends LauncherComponent {
     }
 
     private List<AssetIndex.AssetObject> getLocalResourceFilesList(CompleteVersion version, File baseDirectory) {
+        if (version.getAssetIndex() == null || "none".equalsIgnoreCase(version.getAssetIndex().getId())) {
+            return Collections.emptyList();
+        }
         String indexName = version.getAssetIndex().getId();
         File indexesFolder = new File(baseDirectory, "assets/indexes/");
         File indexFile = new File(indexesFolder, indexName + ".json");
@@ -107,7 +110,9 @@ public class AssetsManager extends LauncherComponent {
     }
 
     private List<AssetIndex.AssetObject> getRemoteResourceFilesList(CompleteVersion version, File baseDirectory, boolean save) throws IOException {
-
+        if (version.getAssetIndex() == null || "none".equalsIgnoreCase(version.getAssetIndex().getId())) {
+            return Collections.emptyList();
+        }
         String indexName = version.getAssetIndex().getId();
         if (indexName == null) {
             indexName = "legacy";

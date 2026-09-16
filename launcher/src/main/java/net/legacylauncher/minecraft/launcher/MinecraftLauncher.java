@@ -1361,6 +1361,9 @@ public class MinecraftLauncher implements JavaProcessListener {
     }
 
     private File reconstructAssets() throws IOException {
+        if (version.getAssetIndex() == null || "none".equalsIgnoreCase(version.getAssetIndex().getId())) {
+            return globalAssetsDir;
+        }
         String assetVersion = version.getAssetIndex().getId();
         if (assetVersion == null) {
             log.warn("Asset version is unknown");
@@ -1617,7 +1620,7 @@ public class MinecraftLauncher implements JavaProcessListener {
         } else {
             HashMap map = new HashMap();
             StrSubstitutor substitutor = new StrSubstitutor(map);
-            String assets = version.getAssetIndex().getId();
+            String assets = version.getAssetIndex() != null ? version.getAssetIndex().getId() : "none";
             String[] split = version.getMinecraftArguments().split(" ");
             map.putAll(account.getUser().getLoginCredentials().map());
             /*map.put("auth_username", accountName);
@@ -1884,7 +1887,7 @@ public class MinecraftLauncher implements JavaProcessListener {
     private AssetsManager.ResourceChecker resourceChecker;
 
     private List<AssetIndex.AssetObject> compareAssets(boolean fastCompare) {
-        if (version.getAssetIndex() != null && "none".equals(version.getAssetIndex().getId())) {
+        if (version.getAssetIndex() == null || "none".equalsIgnoreCase(version.getAssetIndex().getId())) {
             log.info("Assets comparison skipped");
             return null;
         }
@@ -2253,7 +2256,7 @@ public class MinecraftLauncher implements JavaProcessListener {
         map.put("game_assets", localAssetsDir.getAbsolutePath());
 
         map.put("assets_root", globalAssetsDir.getAbsolutePath());
-        map.put("assets_index_name", version.getAssetIndex().getId());
+        map.put("assets_index_name", version.getAssetIndex() != null ? version.getAssetIndex().getId() : "none");
 
         map.put("version_type", version.getType());
 
