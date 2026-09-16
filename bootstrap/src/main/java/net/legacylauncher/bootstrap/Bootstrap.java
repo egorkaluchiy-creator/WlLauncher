@@ -50,6 +50,8 @@ public final class Bootstrap {
         LocalBootstrapMeta localBootstrapMeta = LocalBootstrapMeta.getInstance();
 
         OptionParser bootstrapParser = new OptionParser();
+        bootstrapParser.allowsUnrecognizedOptions();
+        bootstrapParser.accepts("debug", "defines if debug logging is enabled");
         ArgumentAcceptingOptionSpec<Path> targetFileParser =
                 bootstrapParser.accepts("targetJar", "points to the targetJar").withRequiredArg().withValuesConvertedBy(new PathValueConverter());
         ArgumentAcceptingOptionSpec<Path> targetLibFolderParser =

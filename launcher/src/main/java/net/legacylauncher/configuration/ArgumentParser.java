@@ -88,6 +88,7 @@ public class ArgumentParser {
 
     private static OptionParser createParser() {
         OptionParser parser = new OptionParser();
+        parser.allowsUnrecognizedOptions();
         for (Arg arg : argMap.values()) {
             OptionSpecBuilder b = parser.accepts(arg.name, arg.description);
             if (arg.needsArg) {
