@@ -61,7 +61,7 @@ public final class ConfigurationDefaults {
         d.put("minecraft.servers.promoted", true);
         d.put("minecraft.servers.promoted.ingame", true);
 
-        d.put("minecraft.onlaunch", Configuration.ActionOnLaunch.HIDE);
+        d.put("minecraft.onlaunch", Configuration.ActionOnLaunch.EXIT);
 
         d.put("minecraft.crash", true);
         d.put("minecraft.mods.removeUndesirable", true);

@@ -34,7 +34,7 @@ class IconTextComponentHelper {
         if (mIcon == null) {
             mBorder = border;
         } else {
-            Border margin = BorderFactory.createEmptyBorder(0, 10 + mIcon.getIconWidth() + 9, 0, 0);
+            Border margin = BorderFactory.createEmptyBorder(0, mIcon.getIconWidth() + 10, 0, 0);
             mBorder = BorderFactory.createCompoundBorder(border, margin);
         }
     }

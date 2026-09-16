@@ -240,20 +240,9 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
         });
         tlauncherTab.add(new EditorPair("settings.slide.list.label", background));
         tlauncherTab.nextPane();
-        logger = new EditorFieldHandler("gui.logger", new EditorComboBox<>(new LoggerTypeConverter(), Configuration.LoggerType.values()));
-        logger.addListener(new EditorFieldChangeListener() {
-            protected void onChange(String oldvalue, String newvalue) {
-                if (newvalue != null) {
-                    tlauncher.reloadLoggerUI();
-                }
-            }
-        });
-        tlauncherTab.add(new EditorPair("settings.logger.label", logger));
-        fullCommand = new EditorFieldHandler("gui.logger.fullcommand", new EditorCheckBox("settings.logger.fullcommand"));
-        tlauncherTab.add(new EditorPair("settings.logger.fullcommand.label", fullCommand));
-        //tlauncherTab.nextPane();
-        launchAction = new EditorFieldHandler("minecraft.onlaunch", new EditorComboBox<>(new ActionOnLaunchConverter(), Configuration.ActionOnLaunch.values()));
-        tlauncherTab.add(new EditorPair("settings.launch-action.label", launchAction));
+        logger = null;
+        fullCommand = null;
+        launchAction = null;
         crashManager = new EditorFieldHandler("minecraft.crash", new EditorCheckBox("settings.crash.enable"));
         tlauncherTab.add(new EditorPair("settings.crash.label", crashManager));
         tlauncherTab.nextPane();
