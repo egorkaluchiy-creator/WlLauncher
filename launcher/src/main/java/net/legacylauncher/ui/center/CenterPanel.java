@@ -93,14 +93,31 @@ public class CenterPanel extends VPanel implements Blockable {
         final double sf = SwingUtil.getScalingFactor();
         final double step = 1 / sf;
 
-        Graphics2D g = (Graphics2D) g0;
+        Graphics2D g = (Graphics2D) g0.create();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g.setColor(getBackground());
-        if (theme.getArc() > 0) {
-            g.fillRoundRect(0, 0, getWidth(), getHeight(), theme.getArc(), theme.getArc());
+        int arc = theme.getArc();
+        int w = getWidth();
+        int h = getHeight();
+
+        Color bg = getBackground();
+        Color bgTop = new Color(
+                Math.min(255, bg.getRed() + 8),
+                Math.min(255, bg.getGreen() + 8),
+                Math.min(255, bg.getBlue() + 12),
+                bg.getAlpha()
+        );
+        Color bgBottom = new Color(
+                Math.max(0, bg.getRed() - 6),
+                Math.max(0, bg.getGreen() - 6),
+                Math.max(0, bg.getBlue() - 6),
+                bg.getAlpha()
+        );
+        g.setPaint(new GradientPaint(0, 0, bgTop, 0, h, bgBottom));
+        if (arc > 0) {
+            g.fillRoundRect(0, 0, w, h, arc, arc);
         } else {
-            g.fillRect(0, 0, getWidth(), getHeight());
+            g.fillRect(0, 0, w, h);
         }
 
         g.setColor(theme.getBorder());
@@ -119,8 +136,8 @@ public class CenterPanel extends VPanel implements Blockable {
                 drawRect(g, xy);
             }
         }
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        super.paintComponent(g);
+        g.dispose();
+        super.paintComponent(g0);
     }
 
     private void drawRect(Graphics2D g, double xy) {
@@ -138,11 +155,11 @@ public class CenterPanel extends VPanel implements Blockable {
     }
 
     protected Del del(int aligment) {
-        return new Del(1, aligment, theme.getBorder());
+        return new Del(1, aligment, new Color(255, 255, 255, 25));
     }
 
     protected Del del(int aligment, int width, int height) {
-        return new Del(1, aligment, width, height, theme.getBorder());
+        return new Del(1, aligment, width, height, new Color(255, 255, 255, 25));
     }
 
     public void defocus() {

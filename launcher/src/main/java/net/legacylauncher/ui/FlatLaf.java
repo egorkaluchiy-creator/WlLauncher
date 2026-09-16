@@ -208,6 +208,14 @@ public class FlatLaf {
         log.info("Setting L&F {}", lookAndFeel);
         try {
             UIManager.setLookAndFeel(lookAndFeel);
+            // Modern rounded geometry and emerald accent
+            UIManager.put("Button.arc", 12);
+            UIManager.put("Component.arc", 12);
+            UIManager.put("TextComponent.arc", 10);
+            UIManager.put("ProgressBar.arc", 12);
+            UIManager.put("ScrollBar.thumbArc", 8);
+            UIManager.put("PopupMenu.borderCornerRadius", 10);
+            UIManager.put("Component.accentColor", new Color(16, 185, 129));
         } catch (Exception e) {
             log.error("Couldn't set L&F", e);
         }

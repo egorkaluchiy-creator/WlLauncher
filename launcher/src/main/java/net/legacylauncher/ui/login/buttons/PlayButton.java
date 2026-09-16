@@ -74,7 +74,112 @@ public class PlayButton extends BorderPanel implements Blockable, LoginForm.Logi
 
     PlayButton(LoginForm lf) {
         loginForm = lf;
-        button = new LocalizableButton();
+        button = new LocalizableButton() {
+            private boolean isHovered = false;
+            private boolean isPressed = false;
+
+            {
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setContentAreaFilled(false);
+                setFocusPainted(false);
+                setBorderPainted(false);
+                setOpaque(false);
+                setPreferredSize(new Dimension(0, SwingUtil.magnify(42)));
+
+                addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        if (isEnabled()) {
+                            isHovered = true;
+                            repaint();
+                        }
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        isHovered = false;
+                        isPressed = false;
+                        repaint();
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        if (isEnabled() && SwingUtilities.isLeftMouseButton(e)) {
+                            isPressed = true;
+                            repaint();
+                        }
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        isPressed = false;
+                        repaint();
+                    }
+                });
+            }
+
+            @Override
+            protected void paintComponent(Graphics g0) {
+                Graphics2D g = (Graphics2D) g0.create();
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int arc = SwingUtil.magnify(12);
+
+                Color topColor;
+                Color bottomColor;
+                Color glowColor;
+
+                if (!isEnabled()) {
+                    topColor = new Color(55, 65, 81);
+                    bottomColor = new Color(38, 44, 54);
+                    glowColor = null;
+                } else if (state == PlayButtonState.CANCEL) {
+                    topColor = isPressed ? new Color(185, 28, 28) : (isHovered ? new Color(239, 68, 68) : new Color(220, 38, 38));
+                    bottomColor = isPressed ? new Color(153, 27, 27) : (isHovered ? new Color(185, 28, 28) : new Color(153, 27, 27));
+                    glowColor = new Color(239, 68, 68, isHovered ? 90 : 40);
+                } else if (state == PlayButtonState.INSTALL || state == PlayButtonState.REINSTALL) {
+                    topColor = isPressed ? new Color(2, 132, 199) : (isHovered ? new Color(56, 189, 248) : new Color(14, 165, 233));
+                    bottomColor = isPressed ? new Color(3, 105, 161) : (isHovered ? new Color(2, 132, 199) : new Color(3, 105, 161));
+                    glowColor = new Color(14, 165, 233, isHovered ? 90 : 40);
+                } else {
+                    topColor = isPressed ? new Color(5, 150, 105) : (isHovered ? new Color(52, 211, 153) : new Color(16, 185, 129));
+                    bottomColor = isPressed ? new Color(4, 120, 87) : (isHovered ? new Color(5, 150, 105) : new Color(5, 150, 105));
+                    glowColor = new Color(16, 185, 129, isHovered ? 100 : 45);
+                }
+
+                if (glowColor != null && isHovered) {
+                    g.setColor(glowColor);
+                    g.fillRoundRect(0, 0, w, h, arc + 2, arc + 2);
+                }
+
+                GradientPaint gp = new GradientPaint(0, 0, topColor, 0, h, bottomColor);
+                g.setPaint(gp);
+                g.fillRoundRect(0, 0, w, h, arc, arc);
+
+                g.setColor(new Color(255, 255, 255, isHovered ? 55 : 30));
+                g.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);
+
+                String text = getText();
+                if (text != null && !text.isEmpty()) {
+                    Font font = getFont();
+                    g.setFont(font);
+                    FontMetrics fm = g.getFontMetrics(font);
+                    int textX = (w - fm.stringWidth(text)) / 2;
+                    int textY = (h + fm.getAscent() - fm.getDescent()) / 2 + (isPressed ? 1 : 0);
+
+                    g.setColor(new Color(0, 0, 0, 100));
+                    g.drawString(text, textX + 1, textY + 1);
+
+                    g.setColor(isEnabled() ? Color.WHITE : new Color(156, 163, 175));
+                    g.drawString(text, textX, textY);
+                }
+
+                g.dispose();
+            }
+        };
         button.addActionListener(e -> {
             switch (state) {
                 case CANCEL:

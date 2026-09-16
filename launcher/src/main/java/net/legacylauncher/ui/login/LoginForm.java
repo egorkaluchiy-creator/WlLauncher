@@ -140,7 +140,7 @@ public class LoginForm extends CenterPanel implements MinecraftListener, Authent
         add(messagePanel);
         add(del(0));
         ExtendedPanel p = new ExtendedPanel();
-        p.setLayout(new GridLayout(2, 1, 0, 2));
+        p.setLayout(new GridLayout(2, 1, 0, SwingUtil.magnify(6)));
         p.add(accounts);
         p.add(versions);
         add(p);
