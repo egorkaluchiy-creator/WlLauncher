@@ -208,50 +208,61 @@ public class FlatLaf {
         log.info("Setting L&F {}", lookAndFeel);
         try {
             UIManager.setLookAndFeel(lookAndFeel);
-            // Modern rounded geometry and emerald accent
-            UIManager.put("Button.arc", 12);
-            UIManager.put("Component.arc", 12);
-            UIManager.put("TextComponent.arc", 10);
-            UIManager.put("ProgressBar.arc", 12);
-            UIManager.put("ScrollBar.thumbArc", 8);
-            UIManager.put("PopupMenu.borderCornerRadius", 10);
-            UIManager.put("Component.accentColor", new Color(16, 185, 129));
-            UIManager.put("Component.focusColor", new Color(16, 185, 129, 90));
-            UIManager.put("Component.focusedBorderColor", new Color(16, 185, 129));
-            UIManager.put("Component.borderColor", new Color(255, 255, 255, 45));
-
-            // ComboBox styling
-            UIManager.put("ComboBox.arc", 12);
-            UIManager.put("ComboBox.padding", new Insets(5, 10, 5, 10));
-            UIManager.put("ComboBox.focusedBorderColor", new Color(16, 185, 129));
-            UIManager.put("ComboBox.selectionBackground", new Color(16, 185, 129, 60));
-            UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-            UIManager.put("ComboBox.buttonBackground", new Color(32, 38, 50));
-            UIManager.put("ComboBox.buttonEditableBackground", new Color(32, 38, 50));
-            UIManager.put("ComboBox.arrowType", "chevron");
-
-            // TabbedPane styling (Settings tabs, etc.)
-            UIManager.put("TabbedPane.tabType", "underlined");
-            UIManager.put("TabbedPane.underlineColor", new Color(16, 185, 129));
-            UIManager.put("TabbedPane.inactiveUnderlineColor", new Color(255, 255, 255, 20));
-            UIManager.put("TabbedPane.underlineHeight", 3);
-            UIManager.put("TabbedPane.hoverColor", new Color(255, 255, 255, 15));
-            UIManager.put("TabbedPane.focusColor", new Color(16, 185, 129, 40));
-            UIManager.put("TabbedPane.selectedBackground", new Color(32, 36, 48));
-            UIManager.put("TabbedPane.selectedForeground", Color.WHITE);
-            UIManager.put("TabbedPane.tabInsets", new Insets(8, 16, 8, 16));
-            UIManager.put("TabbedPane.tabArc", 8);
-            UIManager.put("TabbedPane.showTabSeparators", false);
-            UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
-
-            // CheckBox modern styling
-            UIManager.put("CheckBox.arc", 6);
-            UIManager.put("CheckBox.icon.focusedBorderColor", new Color(16, 185, 129));
-            UIManager.put("CheckBox.icon.selectedBackground", new Color(16, 185, 129));
+            setupModernUIDefaults();
         } catch (Exception e) {
             log.error("Couldn't set L&F", e);
         }
         updateLafInWindows();
+    }
+
+    public static void setupModernUIDefaults() {
+        // Modern rounded geometry and emerald accent
+        UIManager.put("Button.arc", 12);
+        UIManager.put("Component.arc", 12);
+        UIManager.put("TextComponent.arc", 10);
+        UIManager.put("ProgressBar.arc", 12);
+        UIManager.put("ScrollBar.thumbArc", 8);
+        UIManager.put("PopupMenu.borderCornerRadius", 10);
+        UIManager.put("Component.accentColor", new Color(16, 185, 129));
+        UIManager.put("Component.focusColor", new Color(16, 185, 129, 90));
+        UIManager.put("Component.focusedBorderColor", new Color(16, 185, 129));
+        UIManager.put("Component.borderColor", new Color(255, 255, 255, 45));
+
+        // ComboBox styling
+        UIManager.put("ComboBox.arc", 12);
+        UIManager.put("ComboBox.padding", new Insets(5, 10, 5, 10));
+        UIManager.put("ComboBox.focusedBorderColor", new Color(16, 185, 129));
+        UIManager.put("ComboBox.selectionBackground", new Color(16, 185, 129, 60));
+        UIManager.put("ComboBox.selectionForeground", Color.WHITE);
+        UIManager.put("ComboBox.buttonBackground", new Color(32, 38, 50));
+        UIManager.put("ComboBox.buttonEditableBackground", new Color(32, 38, 50));
+        UIManager.put("ComboBox.buttonSeparatorColor", new Color(0, 0, 0, 0));
+        UIManager.put("ComboBox.buttonDisabledSeparatorColor", new Color(0, 0, 0, 0));
+        UIManager.put("ComboBox.buttonSeparatorWidth", 0);
+        UIManager.put("ComboBox.arrowType", "chevron");
+
+        // TabbedPane styling (Settings tabs, etc.)
+        UIManager.put("TabbedPane.tabType", "underlined");
+        UIManager.put("TabbedPane.underlineColor", new Color(16, 185, 129));
+        UIManager.put("TabbedPane.inactiveUnderlineColor", new Color(255, 255, 255, 20));
+        UIManager.put("TabbedPane.underlineHeight", 3);
+        UIManager.put("TabbedPane.hoverColor", new Color(255, 255, 255, 15));
+        UIManager.put("TabbedPane.focusColor", new Color(16, 185, 129, 40));
+        UIManager.put("TabbedPane.selectedBackground", new Color(32, 36, 48, 80));
+        UIManager.put("TabbedPane.selectedForeground", Color.WHITE);
+        UIManager.put("TabbedPane.tabInsets", new Insets(8, 20, 8, 20));
+        UIManager.put("TabbedPane.tabArc", 8);
+        UIManager.put("TabbedPane.showTabSeparators", false);
+        UIManager.put("TabbedPane.hasFullBorder", false);
+        UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
+        UIManager.put("TabbedPane.contentOpaque", false);
+        UIManager.put("TabbedPane.opaque", false);
+
+        // CheckBox modern styling
+        UIManager.put("CheckBox.arc", 6);
+        UIManager.put("CheckBox.opaque", false);
+        UIManager.put("CheckBox.icon.focusedBorderColor", new Color(16, 185, 129));
+        UIManager.put("CheckBox.icon.selectedBackground", new Color(16, 185, 129));
     }
 
     public static void setSystemLookAndFeel() {

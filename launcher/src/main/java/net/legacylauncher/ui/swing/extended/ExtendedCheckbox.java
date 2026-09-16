@@ -42,8 +42,8 @@ public class ExtendedCheckbox extends JCheckBox {
 
     @Override
     public void updateUI() {
-        setForeground(Theme.getTheme().getForeground());
-        setBackground(Theme.getTheme().getBackground());
         super.updateUI();
+        setForeground(Theme.getTheme().getForeground());
+        setOpaque(false);
     }
 }

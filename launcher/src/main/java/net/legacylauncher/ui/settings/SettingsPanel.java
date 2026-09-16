@@ -91,6 +91,11 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
         if (tabPane.getExtendedUI() != null) {
             tabPane.getExtendedUI().setTheme(settingsTheme);
         }
+        tabPane.setOpaque(false);
+        tabPane.putClientProperty("JTabbedPane.tabType", "underlined");
+        tabPane.putClientProperty("JTabbedPane.showTabSeparators", false);
+        tabPane.putClientProperty("JTabbedPane.hasFullBorder", false);
+        tabPane.putClientProperty("JTabbedPane.tabInsets", new Insets(8, 20, 8, 20));
 
         scene = sc;
         FocusListener warning = new FocusListener() {

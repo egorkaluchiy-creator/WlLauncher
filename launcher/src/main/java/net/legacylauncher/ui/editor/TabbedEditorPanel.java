@@ -41,6 +41,7 @@ public class TabbedEditorPanel extends AbstractEditorPanel {
         }
 
         container = new BorderPanel();
+        container.setOpaque(false);
         container.setNorth(messagePanel);
         container.setCenter(tabPane);
         setLayout(new BorderLayout());
@@ -143,6 +144,9 @@ public class TabbedEditorPanel extends AbstractEditorPanel {
             setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
             setInsets(0, 10, 0, 10);
             scroll = new EditorScrollPane(this);
+            scroll.setHorizontalScrollBarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scroll.setOpaque(false);
+            scroll.getViewport().setOpaque(false);
 
             constraints.insets = new Insets(2, 2, 2, 2);
             constraints.ipadx = 8;
@@ -183,15 +187,17 @@ public class TabbedEditorPanel extends AbstractEditorPanel {
             ExtendedPanel field = pair.getPanel();
 
             GridBagConstraints labelConstraints = (GridBagConstraints) constraints.clone();
-            labelConstraints.anchor = GridBagConstraints.WEST;
+            labelConstraints.anchor = GridBagConstraints.NORTHWEST;
             labelConstraints.gridx = 0;
+            labelConstraints.insets = new Insets(4, 4, 4, 12);
             panel.add(label, labelConstraints);
 
             GridBagConstraints fieldConstraints = (GridBagConstraints) constraints.clone();
-            fieldConstraints.anchor = GridBagConstraints.EAST;
+            fieldConstraints.anchor = GridBagConstraints.WEST;
             fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
             fieldConstraints.gridx = 1;
             fieldConstraints.weightx = 1D;
+            fieldConstraints.insets = new Insets(2, 4, 2, 4);
             panel.add(field, fieldConstraints);
             handlers.addAll(pair.getHandlers());
         }

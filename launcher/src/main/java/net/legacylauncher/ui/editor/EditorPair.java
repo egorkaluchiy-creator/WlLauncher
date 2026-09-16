@@ -19,10 +19,12 @@ public class EditorPair {
         label = new LocalizableLabel(labelPath);
 
         panel = new ExtendedPanel(new GridBagLayout());
+        panel.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        //c.gridwidth = GridBagConstraints.;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1.0;
+        c.insets = new Insets(2, 4, 2, 16);
         c.gridy = -1;
         EditorHandler prev = null;
         for (EditorHandler handler : handlers) {

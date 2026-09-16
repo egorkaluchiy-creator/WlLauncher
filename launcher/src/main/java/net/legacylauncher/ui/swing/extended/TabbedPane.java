@@ -4,12 +4,29 @@ import net.legacylauncher.ui.swing.util.Orientation;
 
 import javax.swing.*;
 import javax.swing.plaf.TabbedPaneUI;
+import java.awt.Insets;
 
 public class TabbedPane extends JTabbedPane {
     public TabbedPane(Orientation tabLocation, TabbedPane.TabLayout layout) {
         setTabLocation(tabLocation == null ? Orientation.TOP : tabLocation);
         setTabLayout(layout == null ? TabbedPane.TabLayout.SCROLL : layout);
+        applyModernTabProperties();
         addChangeListener(e -> onTabChange(getSelectedIndex()));
+    }
+
+    private void applyModernTabProperties() {
+        putClientProperty("JTabbedPane.tabType", "underlined");
+        putClientProperty("JTabbedPane.showTabSeparators", false);
+        putClientProperty("JTabbedPane.hasFullBorder", false);
+        putClientProperty("JTabbedPane.tabInsets", new Insets(8, 20, 8, 20));
+        putClientProperty("JTabbedPane.tabAreaInsets", new Insets(4, 6, 0, 6));
+        setOpaque(false);
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        applyModernTabProperties();
     }
 
     public TabbedPane() {

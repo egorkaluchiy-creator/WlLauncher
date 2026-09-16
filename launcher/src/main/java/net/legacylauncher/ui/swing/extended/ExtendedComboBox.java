@@ -19,7 +19,10 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
         setOpaque(false);
         setFont(getFont().deriveFont(LegacyLauncherFrame.getFontSize()));
         setPreferredSize(new Dimension(0, SwingUtil.magnify(36)));
-        ((JComponent) getEditor().getEditorComponent()).setOpaque(false);
+        putClientProperty("JComponent.roundRect", true);
+        if (getEditor() != null && getEditor().getEditorComponent() instanceof JComponent) {
+            ((JComponent) getEditor().getEditorComponent()).setOpaque(false);
+        }
     }
 
     public ExtendedComboBox(StringConverter<T> converter) {
@@ -69,7 +72,11 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
 
     @Override
     public void updateUI() {
-        Theme.setup(this);
         super.updateUI();
+        putClientProperty("JComponent.roundRect", true);
+        setOpaque(false);
+        if (getEditor() != null && getEditor().getEditorComponent() instanceof JComponent) {
+            ((JComponent) getEditor().getEditorComponent()).setOpaque(false);
+        }
     }
 }

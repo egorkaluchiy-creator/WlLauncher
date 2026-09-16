@@ -19,7 +19,7 @@ import java.awt.*;
 
 public class DefaultScene extends PseudoScene {
     public static final Dimension LOGIN_SIZE = new Dimension(300, 200);
-    public static final Dimension SETTINGS_SIZE = new Dimension(600, 550);
+    public static final Dimension SETTINGS_SIZE = new Dimension(660, 560);
 
     public final LoginForm loginForm;
     public final DelayedComponent<SettingsPanel> settingsForm;
