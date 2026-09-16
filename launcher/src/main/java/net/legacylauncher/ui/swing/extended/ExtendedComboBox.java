@@ -4,8 +4,10 @@ import net.legacylauncher.ui.LegacyLauncherFrame;
 import net.legacylauncher.ui.converter.StringConverter;
 import net.legacylauncher.ui.swing.DefaultConverterCellRenderer;
 import net.legacylauncher.ui.theme.Theme;
+import net.legacylauncher.util.SwingUtil;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ExtendedComboBox<T> extends JComboBox<T> {
     private static final long serialVersionUID = -4509947341182373649L;
@@ -16,6 +18,7 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
         setRenderer(renderer);
         setOpaque(false);
         setFont(getFont().deriveFont(LegacyLauncherFrame.getFontSize()));
+        setPreferredSize(new Dimension(0, SwingUtil.magnify(36)));
         ((JComponent) getEditor().getEditorComponent()).setOpaque(false);
     }
 

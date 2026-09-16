@@ -145,8 +145,6 @@ public class LoginForm extends CenterPanel implements MinecraftListener, Authent
         p.add(versions);
         add(p);
         add(del(0));
-        add(checkbox);
-        add(del(0));
         add(buttons);
         tlauncher.getVersionManager().addListener(new SwingVersionManagerListener(this));
         tlauncher.getDownloader().addListener(this);

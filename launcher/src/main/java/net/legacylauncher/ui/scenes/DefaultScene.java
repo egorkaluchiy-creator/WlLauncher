@@ -18,7 +18,7 @@ import net.legacylauncher.util.SwingUtil;
 import java.awt.*;
 
 public class DefaultScene extends PseudoScene {
-    public static final Dimension LOGIN_SIZE = new Dimension(300, 255);
+    public static final Dimension LOGIN_SIZE = new Dimension(300, 200);
     public static final Dimension SETTINGS_SIZE = new Dimension(600, 550);
 
     public final LoginForm loginForm;
