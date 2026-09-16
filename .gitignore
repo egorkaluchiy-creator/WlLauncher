@@ -1,39 +1,102 @@
-# Build Outputs
+# ==========================================
+# Build Outputs & Artifacts
+# ==========================================
 out/
+**/out/
 build/
-WlLauncher/
-*/target/
-*/bin/
+**/build/
 bin/
+**/bin/
+target/
+**/target/
+WlLauncher/
 
-# Temporary and Cache files
+# ==========================================
+# Java & Gradle
+# ==========================================
 .gradle/
-.idea/
-.vscode/
-*.iml
-.settings/
+**/.gradle/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+*.nar
+
+# ==========================================
+# C / C++ / MinGW Native Binaries
+# ==========================================
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.obj
+*.res
+*.res.o
+*.pdb
+*.exp
+*.lib
+*.a
+*.ilk
+*.manifest
+!Setup.manifest
+Setup_res.o
+WlLauncher_res.o
+WlLauncher.res
+WlLauncher.res.o
+
+# ==========================================
+# Archives & Packages
+# ==========================================
+*.zip
+*.7z
+*.tar.gz
+*.rar
+payload.zip
+WlLauncher-Portable.zip
+WlLauncher_Setup.exe
+
+# ==========================================
+# Logs, Temporary & Cache Files
+# ==========================================
 *.log
+**/logs/
+logs/
 proguard.log
 meta.json
 */src/main/resources/**/meta.json
+.playwright-mcp/
+tmp/
+temp/
+.cache/
 
-# OS files
-**/Thumbs.db
+# ==========================================
+# IDE & Editor Files
+# ==========================================
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.factorypath
+*.sublime-*
+
+# ==========================================
+# OS Files
+# ==========================================
+Thumbs.db
 **/.DS_Store
+.DS_Store
+desktop.ini
+$RECYCLE.BIN/
 
-# Native Binaries and Build Artifacts (Keep source code only)
-*.exe
-*.o
-*.obj
-*.zip
-*.dll
-*.jar
-!gradle/wrapper/gradle-wrapper.jar
-payload.zip
-Setup_res.o
-WlLauncher_res.o
-
-# Logs and runtime data
-/logs/*
-/lib/*
+# ==========================================
+# Minecraft & Runtime Test Data
+# ==========================================
 .minecraft/
+.tlauncher/
+212/
