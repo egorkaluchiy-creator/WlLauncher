@@ -251,21 +251,16 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
     fs::path libraries_dir;
     fs::path working_dir = base;
 
-    if (fs::exists(base / L"launcher" / L"launcher" / L"bootstrap.jar")) {
-        working_dir = base / L"launcher";
-        bootstrap_jar = base / L"launcher" / L"launcher" / L"bootstrap.jar";
-        launcher_jar = base / L"launcher" / L"launcher" / L"launcher.jar";
-        libraries_dir = base / L"launcher" / L"launcher" / L"libraries";
+    if (fs::exists(base / L"bootstrap.jar")) {
+        working_dir = base;
+        bootstrap_jar = base / L"bootstrap.jar";
+        launcher_jar = base / L"launcher.jar";
+        libraries_dir = base / L"libraries";
     } else if (fs::exists(base / L"launcher" / L"bootstrap.jar")) {
         working_dir = base / L"launcher";
         bootstrap_jar = base / L"launcher" / L"bootstrap.jar";
         launcher_jar = base / L"launcher" / L"launcher.jar";
         libraries_dir = base / L"launcher" / L"libraries";
-    } else if (fs::exists(base / L"bootstrap.jar")) {
-        working_dir = base;
-        bootstrap_jar = base / L"bootstrap.jar";
-        launcher_jar = base / L"launcher.jar";
-        libraries_dir = base / L"libraries";
     } else if (fs::exists(base / L"packages" / L"portable" / L"build" / L"portableBase" / L"wllauncher" / L"launcher" / L"bootstrap.jar")) {
         fs::path pBase = base / L"packages" / L"portable" / L"build" / L"portableBase" / L"wllauncher" / L"launcher";
         working_dir = pBase.parent_path();

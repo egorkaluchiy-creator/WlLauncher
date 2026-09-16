@@ -735,6 +735,14 @@ public final class Bootstrap {
                         if (cJar != null && Files.isRegularFile(cJar)) {
                             try {
                                 Path useLib = (cLib != null && Files.isDirectory(cLib)) ? cLib : getTargetLibFolder();
+                                if (!Files.isDirectory(useLib)) {
+                                    for (Path checkLib : candidateLibs) {
+                                        if (checkLib != null && Files.isDirectory(checkLib)) {
+                                            useLib = checkLib;
+                                            break;
+                                        }
+                                    }
+                                }
                                 log.info("Found fallback launcher at {} with libs {}", cJar, useLib);
                                 local = new LocalLauncher(cJar, useLib);
                                 setTargetJar(cJar);
