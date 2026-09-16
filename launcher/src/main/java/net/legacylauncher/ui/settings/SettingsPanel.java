@@ -239,13 +239,11 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
             }
         });
         tlauncherTab.add(new EditorPair("settings.slide.list.label", background));
-        tlauncherTab.nextPane();
         logger = null;
         fullCommand = null;
         launchAction = null;
         crashManager = new EditorFieldHandler("minecraft.crash", new EditorCheckBox("settings.crash.enable"));
         tlauncherTab.add(new EditorPair("settings.crash.label", crashManager));
-        tlauncherTab.nextPane();
 
         alertUpdates = new EditorGroupHandler(Collections.emptyList());
         allowNoticeDisable = null;
