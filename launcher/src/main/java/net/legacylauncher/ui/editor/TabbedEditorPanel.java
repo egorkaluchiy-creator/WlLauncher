@@ -186,6 +186,8 @@ public class TabbedEditorPanel extends AbstractEditorPanel {
             LocalizableLabel label = pair.getLabel();
             ExtendedPanel field = pair.getPanel();
 
+            label.setMinimumSize(label.getPreferredSize());
+
             GridBagConstraints labelConstraints = (GridBagConstraints) constraints.clone();
             labelConstraints.anchor = GridBagConstraints.NORTHWEST;
             labelConstraints.gridx = 0;

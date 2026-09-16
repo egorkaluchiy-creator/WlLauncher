@@ -24,7 +24,7 @@ public class EditorPair {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1.0;
-        c.insets = new Insets(2, 4, 2, 16);
+        c.insets = new Insets(2, 2, 2, 8);
         c.gridy = -1;
         EditorHandler prev = null;
         for (EditorHandler handler : handlers) {
