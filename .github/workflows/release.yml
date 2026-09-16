@@ -25,25 +25,25 @@ jobs:
           java-version: '21'
           cache: 'gradle'
 
-      - name: Install Inno Setup
-        run: choco install innosetup --no-progress
-
       - name: Build Distributions
-        run: .\gradlew.bat :packages:portable:preparePortableBuild :packages:installer:prepareInstaller --no-daemon
+        run: .\gradlew.bat :packages:portable:preparePortableBuild --no-daemon
 
-      - name: Package Portable Zip
+      - name: Package Portable Zip & Setup Payload
         run: |
           $dist = "packages/portable/build/portable/wllauncher"
           $zip = "WlLauncher-Portable.zip"
           Compress-Archive -Path "$dist/*" -DestinationPath $zip -Force
+          Copy-Item $zip "payload.zip" -Force
 
-      - name: Compile Setup Installer
+      - name: Compile Native C++ Setup Installer
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "packages/installer/build/innosetup/wllauncher/main.iss" /O"."
+          windres Setup.rc -O coff -o Setup_res.o
+          g++ -O3 -mwindows -municode -static Setup.cpp Setup_res.o -o WlLauncher_Setup.exe -lshlwapi -lole32 -luuid -lcomctl32 -lmsimg32
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          name: WlLauncher ${{ github.ref_name }}
           files: |
             WlLauncher_Setup.exe
             WlLauncher-Portable.zip
