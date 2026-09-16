@@ -260,6 +260,15 @@ public class LegacyLauncherFrame extends JFrame {
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
         UIManager.put("TabbedPane.tabInsets", new Insets(0, 8, 6, 8));
 
+        // Modern FlatLaf component styling
+        UIManager.put("Button.arc", 12);
+        UIManager.put("Component.arc", 12);
+        UIManager.put("TextComponent.arc", 10);
+        UIManager.put("ProgressBar.arc", 12);
+        UIManager.put("ScrollBar.thumbArc", 8);
+        UIManager.put("PopupMenu.borderCornerRadius", 10);
+        UIManager.put("Component.accentColor", new Color(16, 185, 129));
+
         String themeFile = settings.get("gui.theme");
         String name = null;
         InputStream in;
