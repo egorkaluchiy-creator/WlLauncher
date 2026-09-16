@@ -24,7 +24,7 @@ class IconTextComponentHelper {
     void onPaintComponent(Graphics g) {
         if (mIcon != null) {
             int y = (mTextComponent.getHeight() - mIcon.getIconHeight()) / 2;
-            mIcon.paintIcon(mTextComponent, g, 8, Math.max(0, y));
+            mIcon.paintIcon(mTextComponent, g, 16, Math.max(0, y));
         }
     }
 
@@ -34,7 +34,7 @@ class IconTextComponentHelper {
         if (mIcon == null) {
             mBorder = border;
         } else {
-            Border margin = BorderFactory.createEmptyBorder(0, mIcon.getIconWidth() + 10, 0, 0);
+            Border margin = BorderFactory.createEmptyBorder(0, 16 + mIcon.getIconWidth() + 8, 0, 0);
             mBorder = BorderFactory.createCompoundBorder(border, margin);
         }
     }

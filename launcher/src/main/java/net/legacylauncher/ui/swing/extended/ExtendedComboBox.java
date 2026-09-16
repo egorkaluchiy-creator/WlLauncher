@@ -19,7 +19,6 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
         setOpaque(false);
         setFont(getFont().deriveFont(LegacyLauncherFrame.getFontSize()));
         setPreferredSize(new Dimension(0, SwingUtil.magnify(36)));
-        putClientProperty("JComponent.roundRect", true);
         if (getEditor() != null && getEditor().getEditorComponent() instanceof JComponent) {
             ((JComponent) getEditor().getEditorComponent()).setOpaque(false);
         }
@@ -73,7 +72,6 @@ public class ExtendedComboBox<T> extends JComboBox<T> {
     @Override
     public void updateUI() {
         super.updateUI();
-        putClientProperty("JComponent.roundRect", true);
         setOpaque(false);
         if (getEditor() != null && getEditor().getEditorComponent() instanceof JComponent) {
             ((JComponent) getEditor().getEditorComponent()).setOpaque(false);

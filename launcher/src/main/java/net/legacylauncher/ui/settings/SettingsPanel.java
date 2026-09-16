@@ -182,25 +182,8 @@ public class SettingsPanel extends TabbedEditorPanel implements LoginForm.LoginP
         memory = new EditorFieldHandler("minecraft.xmx", memorySlider, warning);
         minecraftTab.add(new EditorPair("settings.java.memory.label", memory));
 
-        if (!tlauncher.getGpuManager().isEmpty()) {
-            minecraftTab.nextPane();
-            gpu = new EditorFieldHandler("minecraft.gpu", new GPUComboBox(this));
-            minecraftTab.add(new EditorPair("settings.gpu.label", gpu));
-        } else {
-            gpu = null;
-        }
-
-        minecraftTab.nextPane();
-
-        List<EditorHandler> extraHandlerList = new ArrayList<>();
-        extraHandlerList.add(new EditorFieldHandler("minecraft.servers.promoted.ingame", new EditorCheckBox("settings.promotion.ingame", true)));
-        if (GameModeHookLoader.isAvailable()) {
-            extraHandlerList.add(EditorPair.NEXT_COLUMN);
-            extraHandlerList.add(new EditorFieldHandler("minecraft.gamemode", new EditorCheckBox("settings.gamemode", true)));
-        }
-        extraHandler = new EditorGroupHandler(extraHandlerList);
-        minecraftTab.add(new EditorPair("settings.extra.label", extraHandlerList));
-        minecraftTab.nextPane();
+        gpu = null;
+        extraHandler = new EditorGroupHandler(Collections.emptyList());
 
         add(minecraftTab);
         EditorPanelTab tlauncherTab = new EditorPanelTab("settings.tab.tlauncher");

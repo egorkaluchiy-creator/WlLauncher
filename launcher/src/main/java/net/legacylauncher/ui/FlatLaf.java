@@ -229,13 +229,13 @@ public class FlatLaf {
         UIManager.put("Component.borderColor", new Color(255, 255, 255, 45));
 
         // ComboBox styling
-        UIManager.put("ComboBox.arc", 12);
+        UIManager.put("ComboBox.arc", 10);
         UIManager.put("ComboBox.padding", new Insets(5, 10, 5, 10));
         UIManager.put("ComboBox.focusedBorderColor", new Color(16, 185, 129));
         UIManager.put("ComboBox.selectionBackground", new Color(16, 185, 129, 60));
         UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-        UIManager.put("ComboBox.buttonBackground", new Color(32, 38, 50));
-        UIManager.put("ComboBox.buttonEditableBackground", new Color(32, 38, 50));
+        UIManager.put("ComboBox.buttonBackground", new Color(0, 0, 0, 0));
+        UIManager.put("ComboBox.buttonEditableBackground", new Color(0, 0, 0, 0));
         UIManager.put("ComboBox.buttonSeparatorColor", new Color(0, 0, 0, 0));
         UIManager.put("ComboBox.buttonDisabledSeparatorColor", new Color(0, 0, 0, 0));
         UIManager.put("ComboBox.buttonSeparatorWidth", 0);

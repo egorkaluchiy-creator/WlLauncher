@@ -57,6 +57,10 @@ public class AccountCellRenderer implements ListCellRenderer<Account<? extends U
     public Component getListCellRendererComponent(JList<? extends Account<? extends User>> list, Account<? extends User> value, int index, boolean isSelected, boolean cellHasFocus) {
         JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         renderer.setAlignmentY(0.5F);
+        if (index == -1) {
+            renderer.setBorder(BorderFactory.createEmptyBorder(1, 6, 1, 6));
+            renderer.setIconTextGap(8);
+        }
         if (value != null && value != EMPTY) {
             if (value == MANAGE) {
                 renderer.setText(Localizable.get("account.manage"));
