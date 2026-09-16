@@ -43,7 +43,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "files\common\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "files\x64\*"; Check: IsX64Compatible and not IsArm64; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "files\arm64\*"; Check: IsArm64; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "files\common\wl.properties"; DestDir: "{app}"; Flags: ignoreversion;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [UninstallDelete]

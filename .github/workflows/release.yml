@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+      - 'V*'
   workflow_dispatch:
 
 jobs:
@@ -24,14 +25,21 @@ jobs:
           java-version: '21'
           cache: 'gradle'
 
-      - name: Build Portable Distribution
-        run: .\gradlew.bat :packages:portable:preparePortableBuild --no-daemon
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress
+
+      - name: Build Distributions
+        run: .\gradlew.bat :packages:portable:preparePortableBuild :packages:installer:prepareInstaller --no-daemon
 
       - name: Package Portable Zip
         run: |
           $dist = "packages/portable/build/portable/wllauncher"
           $zip = "WlLauncher-Portable.zip"
           Compress-Archive -Path "$dist/*" -DestinationPath $zip -Force
+
+      - name: Compile Setup Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "packages/installer/build/innosetup/wllauncher/main.iss" /O"."
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
