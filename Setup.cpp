@@ -86,7 +86,7 @@ static void RegisterUninstall(const std::wstring& installDir, const std::wstring
     if (RegCreateKeyExW(HKEY_CURRENT_USER, subKey, 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hKey, nullptr) == ERROR_SUCCESS) {
         const wchar_t* name = L"WlLauncher";
         const wchar_t* pub = L"WlLauncher Team";
-        const wchar_t* ver = L"2.0.0";
+        const wchar_t* ver = L"1.2.0";
         DWORD d1 = 1;
 
         RegSetValueExW(hKey, L"DisplayName", 0, REG_SZ, (const BYTE*)name, (DWORD)((wcslen(name) + 1) * sizeof(wchar_t)));

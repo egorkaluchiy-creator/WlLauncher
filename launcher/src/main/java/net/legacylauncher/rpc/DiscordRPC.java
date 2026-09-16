@@ -39,6 +39,7 @@ public class DiscordRPC {
     private boolean inGame = false;
     private String currentGameVersion = "";
     private String currentPlayerName = "";
+    private int currentModCount = 0;
 
     private long currentRetryDelayMs = INITIAL_RETRY_DELAY_MS;
     private long nextAllowedConnectTimeMs = 0;
@@ -62,6 +63,7 @@ public class DiscordRPC {
         this.inGame = false;
         this.currentGameVersion = "";
         this.currentPlayerName = "";
+        this.currentModCount = 0;
         executor.execute(() -> {
             if (ensureConnected()) {
                 sendCurrentPresence();
@@ -70,15 +72,35 @@ public class DiscordRPC {
     }
 
     public synchronized void setInGame(String version, String playerName) {
+        setInGame(version, playerName, 0);
+    }
+
+    public synchronized void setInGame(String version, String playerName, int modCount) {
         this.inGame = true;
         this.gameStartTime = System.currentTimeMillis();
         this.currentGameVersion = version != null ? version : "Minecraft";
         this.currentPlayerName = playerName != null ? playerName : "";
+        this.currentModCount = Math.max(0, modCount);
         executor.execute(() -> {
             if (ensureConnected()) {
                 sendCurrentPresence();
             }
         });
+    }
+
+    public static int countMods(File gameDir) {
+        if (gameDir == null) return 0;
+        File modsDir = new File(gameDir, "mods");
+        if (!modsDir.isDirectory()) return 0;
+        File[] list = modsDir.listFiles();
+        if (list == null) return 0;
+        int count = 0;
+        for (File f : list) {
+            if (f.isFile() && f.getName().toLowerCase(java.util.Locale.ROOT).endsWith(".jar")) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public synchronized void shutdown() {
@@ -185,13 +207,18 @@ public class DiscordRPC {
     }
 
     public JsonObject buildPresencePayload(boolean inGame, String version, String player, long startTimestamp, long pid) {
+        return buildPresencePayload(inGame, version, player, startTimestamp, pid, 0);
+    }
+
+    public JsonObject buildPresencePayload(boolean inGame, String version, String player, long startTimestamp, long pid, int modCount) {
         JsonObject activity = new JsonObject();
         JsonObject timestamps = new JsonObject();
         JsonObject assets = new JsonObject();
 
         if (inGame) {
             String ver = (version != null && !version.isEmpty()) ? version : "Minecraft";
-            activity.addProperty("details", "Играет в " + ver);
+            String modSuffix = modCount > 0 ? " (" + modCount + " " + (modCount == 1 ? "мод" : (modCount < 5 ? "мода" : "модов")) + ")" : "";
+            activity.addProperty("details", "Играет в " + ver + modSuffix);
             activity.addProperty("state", (player == null || player.isEmpty()) ? "В игре" : "Игрок: " + player);
             timestamps.addProperty("start", startTimestamp / 1000L);
             assets.addProperty("large_image", "logo");
@@ -206,6 +233,18 @@ public class DiscordRPC {
             assets.addProperty("large_text", "WlLauncher — Быстрый лаунчер Minecraft");
         }
 
+        com.google.gson.JsonArray buttons = new com.google.gson.JsonArray();
+        JsonObject btn1 = new JsonObject();
+        btn1.addProperty("label", "WlLauncher GitHub");
+        btn1.addProperty("url", "https://github.com/egorkaluchiy-creator/WlLauncher");
+        buttons.add(btn1);
+
+        JsonObject btn2 = new JsonObject();
+        btn2.addProperty("label", "Ely.by Скины");
+        btn2.addProperty("url", "https://ely.by");
+        buttons.add(btn2);
+
+        activity.add("buttons", buttons);
         activity.add("timestamps", timestamps);
         activity.add("assets", assets);
 
@@ -227,7 +266,7 @@ public class DiscordRPC {
 
         try {
             long startTime = inGame ? gameStartTime : launcherStartTime;
-            JsonObject payload = buildPresencePayload(inGame, currentGameVersion, currentPlayerName, startTime, getProcessId());
+            JsonObject payload = buildPresencePayload(inGame, currentGameVersion, currentPlayerName, startTime, getProcessId(), currentModCount);
             writeFrame(1, payload.toString());
         } catch (Exception e) {
             log.debug("Failed to send presence frame: {}", e.getMessage());

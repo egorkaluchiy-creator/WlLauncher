@@ -111,5 +111,23 @@ class DiscordRPCTest {
         assertEquals("Играет в 1.20.4", activity.get("details").getAsString());
         assertEquals("Игрок: Steve", activity.get("state").getAsString());
         assertEquals(2000L, activity.getAsJsonObject("timestamps").get("start").getAsLong());
+        assertTrue(activity.has("buttons"), "Payload should contain Discord action buttons");
+    }
+
+    @Test
+    void testBuildPresencePayloadWithMods() {
+        DiscordRPC rpc = DiscordRPC.getInstance();
+        JsonObject payload = rpc.buildPresencePayload(true, "Fabric 1.21.1", "Steve", 2000000L, 5678L, 35);
+
+        assertNotNull(payload);
+        JsonObject activity = payload.getAsJsonObject("args").getAsJsonObject("activity");
+        assertEquals("Играет в Fabric 1.21.1 (35 модов)", activity.get("details").getAsString());
+        assertEquals("Игрок: Steve", activity.get("state").getAsString());
+    }
+
+    @Test
+    void testCountModsNullAndEmpty() {
+        assertEquals(0, DiscordRPC.countMods(null));
+        assertEquals(0, DiscordRPC.countMods(new java.io.File("non_existent_folder_xyz")));
     }
 }

@@ -66,7 +66,11 @@ public class MinecraftUIListener implements MinecraftListener, CrashManagerListe
                     playerName = u.getDisplayName();
                 }
             }
-            net.legacylauncher.rpc.DiscordRPC.getInstance().setInGame(versionName, playerName);
+            int modCount = 0;
+            if (t.getMinecraftLauncher() != null && t.getMinecraftLauncher().getGameDir() != null) {
+                modCount = net.legacylauncher.rpc.DiscordRPC.countMods(t.getMinecraftLauncher().getGameDir());
+            }
+            net.legacylauncher.rpc.DiscordRPC.getInstance().setInGame(versionName, playerName, modCount);
         } catch (Throwable ignored) {
         }
     }

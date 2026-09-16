@@ -475,6 +475,12 @@ public final class CrashManager {
 
             if (args.equals("versions")) {
                 LegacyLauncher.getInstance().getFrame().mp.setScene(LegacyLauncher.getInstance().getFrame().mp.versionManager.get());
+                return;
+            }
+
+            if (args.equals("mods")) {
+                javax.swing.SwingUtilities.invokeLater(() -> new net.legacylauncher.ui.modrinth.ModManagerFrame().showAtCenter());
+                return;
             }
         }
     }

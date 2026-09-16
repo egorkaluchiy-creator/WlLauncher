@@ -75,8 +75,16 @@ public class ModrinthCatalogFrame extends ExtendedFrame {
         pathLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         pathLabel.setForeground(new Color(180, 190, 200));
 
+        JButton localModsBtn = new JButton("Установленные моды");
+        localModsBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        localModsBtn.setBackground(new Color(60, 65, 70));
+        localModsBtn.setForeground(Color.WHITE);
+        localModsBtn.setFocusPainted(false);
+        localModsBtn.addActionListener(e -> new ModManagerFrame(modsDir).showAtCenter());
+
         headerInfo.add(titleLabel, BorderLayout.NORTH);
         headerInfo.add(pathLabel, BorderLayout.SOUTH);
+        headerInfo.add(localModsBtn, BorderLayout.EAST);
         topPanel.add(headerInfo, BorderLayout.NORTH);
 
         // Filter & Search row

@@ -1714,6 +1714,7 @@ public class MinecraftLauncher implements JavaProcessListener {
     private void addG1OptimizedArguments(List<String> args) {
         // https://aikar.co/2018/07/02/tuning-the-jvm-g1gc-garbage-collector-flags-for-minecraft/
         args.add("-XX:+UseG1GC"); // enable G1
+        args.add("-XX:MaxGCPauseMillis=20");
         if (ramSize < 8192) {
             args.add("-XX:G1NewSizePercent=25");
             args.add("-XX:G1MaxNewSizePercent=40");

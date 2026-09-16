@@ -1,5 +1,5 @@
 {
-  "revision": 36,
+  "revision": 37,
   "required": "1.122.3",
   "skip-folders": ["millenaire", "millenaire-custom", "hats", "mcheli", "ruins", "voxelMap", "__MACOSX", ".connector"],
   "variables": {
@@ -93,6 +93,26 @@
       },
       "actions": [
         "browse --www https://github.com/xCollateral/VulkanMod/issues"
+      ]
+    },
+    {
+      "name": "manage-mods",
+      "text": {
+        "ru_RU": "Менеджер модов",
+        "en_US": "Mod Manager"
+      },
+      "actions": [
+        "gui mods"
+      ]
+    },
+    {
+      "name": "adoptium-java",
+      "text": {
+        "ru_RU": "Скачать Java (Adoptium)",
+        "en_US": "Download Java (Adoptium)"
+      },
+      "actions": [
+        "browse --www https://adoptium.net/"
       ]
     }
   ],
@@ -995,6 +1015,155 @@
         }
       ],
       "permitHelp": false
+    },
+    {
+      "name": "java-unsupported-class-version-65",
+      "pattern": ".*java\\.lang\\.UnsupportedClassVersionError\\: .+ has been compiled by a more recent version of the Java Runtime \\(class file version 65\\.0\\).*",
+      "title": {
+        "ru_RU": "Требуется Java 21",
+        "en_US": "Java 21 Required"
+      },
+      "body": {
+        "ru_RU": "Эта версия Minecraft или установленные моды скомпилированы под <b>Java 21</b>, но лаунчер использует более старую версию Java.<br />Перейдите в настройки лаунчера и выберите Java 21 или нажмите кнопку «Использовать Рекомендованную Java».",
+        "en_US": "This Minecraft version or installed mods require <b>Java 21</b>, but an older Java runtime is currently used.<br />Please open settings and select Java 21 or click \"Use Recommended JRE\"."
+      },
+      "buttons": [
+        "jre-recommended",
+        "open-settings",
+        "adoptium-java"
+      ]
+    },
+    {
+      "name": "java-unsupported-class-version-61",
+      "pattern": ".*java\\.lang\\.UnsupportedClassVersionError\\: .+ has been compiled by a more recent version of the Java Runtime \\(class file version 61\\.0\\).*",
+      "title": {
+        "ru_RU": "Требуется Java 17",
+        "en_US": "Java 17 Required"
+      },
+      "body": {
+        "ru_RU": "Эта версия Minecraft или установленные моды требуют <b>Java 17</b>.<br />В настройках лаунчера переключите версию Java на 17 или выберите рекомендованную JRE.",
+        "en_US": "This Minecraft version or installed mods require <b>Java 17</b>.<br />Please switch your Java runtime to Java 17 in launcher settings or click \"Use Recommended JRE\"."
+      },
+      "buttons": [
+        "jre-recommended",
+        "open-settings",
+        "adoptium-java"
+      ]
+    },
+    {
+      "name": "java-unsupported-class-version-52",
+      "pattern": ".*java\\.lang\\.UnsupportedClassVersionError\\: .+ has been compiled by a more recent version of the Java Runtime \\(class file version 52\\.0\\).*",
+      "title": {
+        "ru_RU": "Требуется Java 8+",
+        "en_US": "Java 8+ Required"
+      },
+      "body": {
+        "ru_RU": "Версия скомпилирована под <b>Java 8</b> или новее. Выберите актуальную версию Java в настройках лаунчера.",
+        "en_US": "This version was compiled for <b>Java 8</b> or newer. Please select an appropriate Java runtime in launcher settings."
+      },
+      "buttons": [
+        "jre-recommended",
+        "open-settings"
+      ]
+    },
+    {
+      "name": "glfw-opengl-wgl-error",
+      "pattern": ".*(?:GLFW error 65542|The driver does not appear to support OpenGL|Failed to find a suitable pixel format).*",
+      "title": {
+        "ru_RU": "Ошибка видеодрайвера OpenGL (GLFW 65542)",
+        "en_US": "OpenGL Driver Error (GLFW 65542)"
+      },
+      "body": {
+        "ru_RU": "Драйвер вашей видеокарты не поддерживает требуемую версию OpenGL для этой версии Minecraft.<br /><b>Решение:</b> Обновите видеодрайвер для вашей видеокарты (NVIDIA, AMD или Intel). Если у вас ноутбук с двумя видеокартами, убедитесь, что игра запускается на дискретной карте.",
+        "en_US": "Your graphics driver does not support the required OpenGL version for Minecraft.<br /><b>Fix:</b> Update your GPU drivers (NVIDIA, AMD, or Intel). If using a laptop with dual GPUs, ensure the game runs on the discrete high-performance GPU."
+      },
+      "buttons": [
+        "open-settings",
+        "logs"
+      ]
+    },
+    {
+      "name": "gpu-driver-crash-dll",
+      "pattern": ".*(?:EXCEPTION_ACCESS_VIOLATION|SIGSEGV).*(?:nvoglv64\\.dll|nvoglv32\\.dll|atio6axx\\.dll|atioglxx\\.dll|ig9icd64\\.dll|ig7icd64\\.dll|ig4icd64\\.dll|ig75icd64\\.dll).*",
+      "title": {
+        "ru_RU": "Сбой драйвера видеокарты",
+        "en_US": "Graphics Driver Crash"
+      },
+      "body": {
+        "ru_RU": "Игра аварийно завершилась из-за сбоя в библиотеке графического драйвера.<br />Рекомендуется полностью обновить драйвер видеокарты, отключить нестабильные шейдеры или удалить несовместимые графические моды.",
+        "en_US": "The game crashed inside your graphics driver library.<br />Please update your GPU driver, disable unstable shader packs, or remove conflicting visual mods."
+      },
+      "buttons": [
+        "manage-mods",
+        "open-mods",
+        "logs"
+      ]
+    },
+    {
+      "name": "fabric-mod-resolution-error",
+      "pattern": ".*(?:net\\.fabricmc\\.loader\\.impl\\.FormattedException\\: Some of your mods have failed to validate\\!|net\\.fabricmc\\.loader\\.impl\\.discovery\\.ModResolutionException).*",
+      "title": {
+        "ru_RU": "Ошибка зависимостей модов Fabric",
+        "en_US": "Fabric Mod Validation / Dependency Error"
+      },
+      "body": {
+        "ru_RU": "Один или несколько модов Fabric не прошли проверку: отсутствуют обязательные моды-зависимости (например, Fabric API) или версии модов не совпадают с текущей версией Minecraft.<br />Откройте <b>Менеджер модов</b> или логи для проверки недостающих файлов.",
+        "en_US": "One or more Fabric mods failed validation due to missing dependencies (like Fabric API) or version mismatches.<br />Open the <b>Mod Manager</b> or check logs for details."
+      },
+      "buttons": [
+        "manage-mods",
+        "open-mods",
+        "logs"
+      ]
+    },
+    {
+      "name": "mixin-transformer-conflict",
+      "pattern": ".*(?:org\\.spongepowered\\.asm\\.mixin\\.transformer\\.throwables\\.MixinTransformerError|org\\.spongepowered\\.asm\\.mixin\\.throwables\\.MixinApplyError|Critical injection failure).*",
+      "title": {
+        "ru_RU": "Конфликт модов (ошибка Mixin)",
+        "en_US": "Mod Conflict (Mixin Injection Failure)"
+      },
+      "body": {
+        "ru_RU": "Один из установленных модов вызвал критическую ошибку внедрения Mixin в код игры.<br />Это указывает на конфликт между двумя модами или несовместимость мода с текущей версией игры. Воспользуйтесь <b>Менеджером модов</b>, чтобы отключить недавно добавленные моды.",
+        "en_US": "A critical Mixin transformation error occurred caused by an incompatible or conflicting mod.<br />Use the <b>Mod Manager</b> to disable recently added mods and find the conflict."
+      },
+      "buttons": [
+        "manage-mods",
+        "open-mods",
+        "logs"
+      ]
+    },
+    {
+      "name": "optifine-sodium-conflict",
+      "pattern": ".*(?:OptiFine.*is incompatible with.*Sodium|Sodium.*is incompatible with.*OptiFine|Rubidium.*is incompatible with.*OptiFine).*",
+      "title": {
+        "ru_RU": "Конфликт OptiFine и Sodium",
+        "en_US": "OptiFine & Sodium Incompatibility"
+      },
+      "body": {
+        "ru_RU": "Моды <b>OptiFine</b> и <b>Sodium</b> (или Rubidium/Embeddium) не могут работать одновременно.<br />Откройте Менеджер модов и отключите либо OptiFine (для максимального FPS с Sodium), либо Sodium.",
+        "en_US": "<b>OptiFine</b> and <b>Sodium</b> (or Rubidium/Embeddium) cannot run together.<br />Open Mod Manager and disable one of them."
+      },
+      "buttons": [
+        "manage-mods",
+        "open-mods"
+      ]
+    },
+    {
+      "name": "direct-memory-metaspace-oom",
+      "pattern": ".*java\\.lang\\.OutOfMemoryError\\: (?:Direct buffer memory|Metaspace|GC overhead limit exceeded).*",
+      "title": {
+        "ru_RU": "Нехватка памяти (Metaspace / Direct Memory)",
+        "en_US": "Out Of Memory (Metaspace / Direct Memory)"
+      },
+      "body": {
+        "ru_RU": "Java исчерпала системную память (Direct Buffer Memory / Metaspace).<br />Увеличьте выделение оперативной памяти в настройках лаунчера и закройте фоновые ресурсоемкие приложения.",
+        "en_US": "Java ran out of direct memory or metaspace.<br />Increase allocated RAM in launcher settings and close memory-heavy applications."
+      },
+      "buttons": [
+        "open-settings",
+        "fix-heap"
+      ]
     }
   ]
 }
